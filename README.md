@@ -15,7 +15,7 @@ Desktop lyrics overlay for Windows. Shows synced lyrics with Chinese translation
 
 ## install
 
-Download from [Releases](https://github.com/Epi-1120/desktop-lyric/releases) — single .exe, no install needed.
+Download from [Releases](https://github.com/Epi-Lo/desktop-lyric/releases) — single .exe, no install needed.
 
 Or build from source:
 
@@ -52,4 +52,4 @@ Searches these in parallel, picks the one whose timing best matches track durati
 
 ---
 
-made by [Epi-1120](https://github.com/Epi-1120)
+made by [Epi-Lo](https://github.com/Epi-Lo)

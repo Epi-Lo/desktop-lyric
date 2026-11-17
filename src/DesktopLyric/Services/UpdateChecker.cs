@@ -8,7 +8,7 @@ public static class UpdateChecker
 {
     private static readonly HttpClient _http = new() { Timeout = TimeSpan.FromSeconds(8) };
     public const string CurrentVersion = "1.0.0"; // bump this when releasing
-    private const string Repo = "Epi-1120/desktop-lyric";
+    private const string Repo = "Epi-Lo/desktop-lyric";
 
     public record UpdateInfo(string Version, string Url, string Notes);
 
