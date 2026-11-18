@@ -50,6 +50,12 @@ Searches these in parallel, picks the one whose timing best matches track durati
 3. Kugou (酷狗)
 4. LRCLIB
 
+## about the commit history
+
+I wrote this on my own pc from Jan to May 2026 and only pushed it to GitHub on 14 May, so every old commit shows the same "verified" time. The commit dates are the real local ones.
+
+Some old commit messages have `鈥?` in them, that was an em dash broken by PowerShell. Can't fix without rewriting history, so I just leave it lor.
+
 ---
 
 made by [Epi-Lo](https://github.com/Epi-Lo)
