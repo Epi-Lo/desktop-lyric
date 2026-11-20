@@ -17,6 +17,7 @@ public partial class MainWindow : Window
     private DispatcherTimer _syncTimer;
 
     private readonly LyricsService _lyrics = new();
+    private readonly LyricSearchTracker _lyricsTracker = new();
     private static readonly System.Net.Http.HttpClient _romajiHttp = new() { Timeout = TimeSpan.FromSeconds(3) };
 
     private string _lastTitle = "";
@@ -120,25 +121,39 @@ public partial class MainWindow : Window
                 _ = LoadAlbumArt(props);
                 _overlay?.SetTrackInfo(title, artist);
 
-                if (title != _lastTitle)
+                if (_lyricsTracker.Start(title) is { } request)
                 {
                     _lastTitle = title;
                     _lyrics.Cancel();
+                    // Drop the previous track's lines before awaiting, so the
+                    // 100ms sync timer cannot keep painting them for the new
+                    // track while the search is in flight.
+                    _lines = new();
+                    _overlay?.UpdateLyrics("", null, null);
                     TxtCurrent.Text = "searching...";
                     TxtTrans.Text = "";
                     TxtPrev.Text = "";
                     TxtNext.Text = "";
+                    TxtRomaji.Text = "";
 
                     var result = await _lyrics.SearchAsync(title, artist, GetTrackDuration());
-                    if (result != null && result.Count > 0)
+
+                    // A cancelled search returns null too, which looks exactly
+                    // like "no lyrics found". If another track has started in
+                    // the meantime, this result belongs to the old one and must
+                    // not touch the current track's state.
+                    if (_lyricsTracker.IsCurrent(request))
                     {
-                        _lines = result;
-                        TxtCurrent.Text = "♪";
-                    }
-                    else
-                    {
-                        _lines = new();
-                        TxtCurrent.Text = "no lyrics found";
+                        if (result != null && result.Count > 0)
+                        {
+                            _lines = result;
+                            TxtCurrent.Text = "♪";
+                        }
+                        else
+                        {
+                            _lines = new();
+                            TxtCurrent.Text = "no lyrics found";
+                        }
                     }
                 }
             }
