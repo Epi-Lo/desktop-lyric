@@ -1,0 +1,4 @@
+OpenCC dictionaries in this folder (STCharacters.txt, STPhrases.txt,
+HKVariants.txt) are from https://github.com/BYVoid/OpenCC
+Copyright the OpenCC authors. Licensed under Apache License 2.0.
+Used for Simplified → Hong Kong Traditional conversion.

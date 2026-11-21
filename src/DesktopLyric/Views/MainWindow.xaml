@@ -1,14 +1,22 @@
 <Window x:Class="DesktopLyric.Views.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:local="clr-namespace:DesktopLyric.Views"
         Title="Desktop Lyric"
+        Icon="pack://application:,,,/Assets/app.ico"
         Height="640" Width="460"
         WindowStartupLocation="CenterScreen"
         Background="Transparent"
         WindowStyle="None"
         AllowsTransparency="True"
         ResizeMode="CanMinimize"
-        MouseLeftButtonDown="Window_Drag">
+        FontFamily="Noto Sans HK Medium, Noto Sans HK, Segoe UI"
+        TextOptions.TextFormattingMode="Ideal"
+        TextOptions.TextRenderingMode="Grayscale"
+        TextOptions.TextHintingMode="Animated"
+        UseLayoutRounding="False"
+        MouseLeftButtonDown="Window_Drag"
+        PreviewKeyDown="Window_PreviewKeyDown">
 
     <Border CornerRadius="16" ClipToBounds="True" BorderThickness="1">
         <Border.BorderBrush>
@@ -67,7 +75,11 @@
                     </Grid.ColumnDefinitions>
                     <Border Grid.Column="0" CornerRadius="8" Width="44" Height="44"
                             Background="#15FFFFFF" ClipToBounds="True">
-                        <Image x:Name="AlbumArt" Stretch="UniformToFill"/>
+                        <Border.CacheMode>
+                            <BitmapCache EnableClearType="False" SnapsToDevicePixels="True"/>
+                        </Border.CacheMode>
+                        <Image x:Name="AlbumArt" Stretch="Uniform"
+                               HorizontalAlignment="Center" VerticalAlignment="Center"/>
                     </Border>
                     <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="12,0,0,0">
                         <TextBlock x:Name="TxtTitle" Text="waiting..."
@@ -91,34 +103,120 @@
             <!-- Lyrics -->
             <Border Grid.Row="3" CornerRadius="12" Padding="16,12" Margin="0,0,0,10"
                     BorderThickness="1" BorderBrush="#12FFFFFF">
+                <Border.CacheMode>
+                    <BitmapCache RenderAtScale="1.25" EnableClearType="False" SnapsToDevicePixels="False"/>
+                </Border.CacheMode>
                 <Border.Background>
                     <SolidColorBrush Color="#0a0a12" Opacity="0.6"/>
                 </Border.Background>
                 <StackPanel VerticalAlignment="Center">
                     <TextBlock x:Name="TxtPrev" Text=""
                                FontSize="11.5" Foreground="#30FFFFFF"
-                               TextAlignment="Center" Margin="0,0,0,6"
+                               TextAlignment="Center" Margin="0,0,0,2"
                                TextWrapping="Wrap"/>
                     <TextBlock x:Name="TxtRomaji" Text=""
                                FontSize="10" Foreground="#5090c0"
                                TextAlignment="Center" FontStyle="Italic"
                                Margin="0,0,0,3"/>
-                    <TextBlock x:Name="TxtCurrent" Text="lyrics will show here"
-                               FontSize="17" Foreground="#00d4ff" FontWeight="Bold"
-                               TextAlignment="Center" TextWrapping="Wrap"/>
-                    <TextBlock x:Name="TxtTrans" Text=""
-                               FontSize="12.5" Foreground="#c0c8d8"
-                               TextAlignment="Center" Margin="0,4,0,0"
-                               TextWrapping="Wrap"/>
+                    <local:LyricLineView x:Name="TxtCurrent" FontSize="18" IsCurrent="True"
+                                         MinHeight="26" Margin="0,2,0,2"/>
+                    <local:LyricLineView x:Name="TxtTrans" FontSize="18"
+                                         Foreground="#C0C8D8" MinHeight="24" Margin="0,2,0,0"/>
                     <TextBlock x:Name="TxtNext" Text=""
                                FontSize="11.5" Foreground="#30FFFFFF"
-                               TextAlignment="Center" Margin="0,6,0,0"
+                               TextAlignment="Center" Margin="0,2,0,0"
                                TextWrapping="Wrap"/>
                 </StackPanel>
             </Border>
 
             <!-- Buttons -->
             <WrapPanel Grid.Row="4" HorizontalAlignment="Center" Margin="0,0,0,10">
+                <Button x:Name="BtnFont" Content="昭源圓體" Click="CycleFont_Click"
+                        ToolTip="切換中文字型"
+                        Background="#0CFFFFFF" Foreground="#a0b0c0"
+                        BorderBrush="#15FFFFFF" BorderThickness="1"
+                        Padding="14,7" FontSize="11" Cursor="Hand" Margin="3">
+                    <Button.Resources>
+                        <Style TargetType="Border"><Setter Property="CornerRadius" Value="16"/></Style>
+                    </Button.Resources>
+                </Button>
+                <Button x:Name="BtnTrad" Content="繁體" Click="ToggleTraditional_Click"
+                        Background="#0CFFFFFF" Foreground="#00d4ff"
+                        BorderBrush="#15FFFFFF" BorderThickness="1"
+                        Padding="14,7" FontSize="11" Cursor="Hand" Margin="3">
+                    <Button.Resources>
+                        <Style TargetType="Border"><Setter Property="CornerRadius" Value="16"/></Style>
+                    </Button.Resources>
+                </Button>
+                <Button Content="選歌" Click="PickSong_Click"
+                        ToolTip="同名歌揀正確版本"
+                        Background="#0CFFFFFF" Foreground="#a0b0c0"
+                        BorderBrush="#15FFFFFF" BorderThickness="1"
+                        Padding="14,7" FontSize="11" Cursor="Hand" Margin="3">
+                    <Button.Resources>
+                        <Style TargetType="Border"><Setter Property="CornerRadius" Value="16"/></Style>
+                    </Button.Resources>
+                </Button>
+                <Button Content="記憶" Click="SavedSongs_Click"
+                        ToolTip="檢視、改揀或刪除已記住嘅歌詞"
+                        Background="#0CFFFFFF" Foreground="#a0b0c0"
+                        BorderBrush="#15FFFFFF" BorderThickness="1"
+                        Padding="14,7" FontSize="11" Cursor="Hand" Margin="3">
+                    <Button.Resources>
+                        <Style TargetType="Border"><Setter Property="CornerRadius" Value="16"/></Style>
+                    </Button.Resources>
+                </Button>
+                <Button Content="−"
+                        PreviewMouseLeftButtonDown="OffsetLater_Down"
+                        PreviewMouseLeftButtonUp="OffsetHold_Up"
+                        LostMouseCapture="OffsetHold_Up"
+                        ToolTip="歌詞早咗：延遲。撳一下 0.05s，長按加快（最多 ±5 分鐘）"
+                        Background="#0CFFFFFF" Foreground="#a0b0c0"
+                        BorderBrush="#15FFFFFF" BorderThickness="1"
+                        Padding="10,7" FontSize="11" Cursor="Hand" Margin="3,3,0,3">
+                    <Button.Resources>
+                        <Style TargetType="Border"><Setter Property="CornerRadius" Value="16"/></Style>
+                    </Button.Resources>
+                </Button>
+                <Button x:Name="BtnOffset" Content="±0.00s" Click="OffsetReset_Click"
+                        ToolTip="重設呢首歌嘅偏移同快慢"
+                        Background="#0CFFFFFF" Foreground="#a0b0c0"
+                        BorderBrush="#15FFFFFF" BorderThickness="1"
+                        Padding="10,7" FontSize="11" Cursor="Hand" Margin="0,3,0,3">
+                    <Button.Resources>
+                        <Style TargetType="Border"><Setter Property="CornerRadius" Value="16"/></Style>
+                    </Button.Resources>
+                </Button>
+                <Button Content="＋"
+                        PreviewMouseLeftButtonDown="OffsetEarlier_Down"
+                        PreviewMouseLeftButtonUp="OffsetHold_Up"
+                        LostMouseCapture="OffsetHold_Up"
+                        ToolTip="歌詞遲咗：提早。撳一下 0.05s，長按加快（最多 ±5 分鐘）"
+                        Background="#0CFFFFFF" Foreground="#a0b0c0"
+                        BorderBrush="#15FFFFFF" BorderThickness="1"
+                        Padding="10,7" FontSize="11" Cursor="Hand" Margin="0,3,3,3">
+                    <Button.Resources>
+                        <Style TargetType="Border"><Setter Property="CornerRadius" Value="16"/></Style>
+                    </Button.Resources>
+                </Button>
+                <Button Content="時機" Click="TimingEditor_Click"
+                        ToolTip="時機編輯：偏移＋快慢＋改詞＋停留（適合 YouTube Live）"
+                        Background="#0CFFFFFF" Foreground="#a0b0c0"
+                        BorderBrush="#15FFFFFF" BorderThickness="1"
+                        Padding="14,7" FontSize="11" Cursor="Hand" Margin="3">
+                    <Button.Resources>
+                        <Style TargetType="Border"><Setter Property="CornerRadius" Value="16"/></Style>
+                    </Button.Resources>
+                </Button>
+                <Button Content="全屏" Click="Fullscreen_Click"
+                        ToolTip="專輯版面／全幕歌詞（F11）"
+                        Background="#0CFFFFFF" Foreground="#a0b0c0"
+                        BorderBrush="#15FFFFFF" BorderThickness="1"
+                        Padding="14,7" FontSize="11" Cursor="Hand" Margin="3">
+                    <Button.Resources>
+                        <Style TargetType="Border"><Setter Property="CornerRadius" Value="16"/></Style>
+                    </Button.Resources>
+                </Button>
                 <Button Content="overlay" Click="ToggleOverlay_Click"
                         Background="#0CFFFFFF" Foreground="#a0b0c0"
                         BorderBrush="#15FFFFFF" BorderThickness="1"
@@ -135,7 +233,8 @@
                         <Style TargetType="Border"><Setter Property="CornerRadius" Value="16"/></Style>
                     </Button.Resources>
                 </Button>
-                <Button Content="settings" Click="Settings_Click"
+                <Button Content="設定" Click="Settings_Click"
+                        ToolTip="顯示、overlay、字級、開機啟動"
                         Background="#0CFFFFFF" Foreground="#a0b0c0"
                         BorderBrush="#15FFFFFF" BorderThickness="1"
                         Padding="14,7" FontSize="11" Cursor="Hand" Margin="3">

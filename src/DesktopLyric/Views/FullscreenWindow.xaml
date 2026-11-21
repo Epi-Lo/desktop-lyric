@@ -1,0 +1,110 @@
+<Window x:Class="DesktopLyric.Views.FullscreenWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:local="clr-namespace:DesktopLyric.Views"
+        Title="Desktop Lyric"
+        WindowStyle="None"
+        WindowState="Maximized"
+        ResizeMode="NoResize"
+        Background="#0a0a12"
+        Topmost="True"
+        ShowInTaskbar="False"
+        FontFamily="Noto Sans HK Medium, Noto Sans HK, Segoe UI"
+        TextOptions.TextFormattingMode="Ideal"
+        TextOptions.TextRenderingMode="Grayscale"
+        PreviewKeyDown="OnPreviewKeyDown"
+        MouseLeftButtonDown="OnDrag"
+        MouseEnter="OnMouseEnter"
+        MouseLeave="OnMouseLeave"
+        SizeChanged="OnWindowSizeChanged">
+
+    <Grid>
+        <Image x:Name="BgArt" Stretch="UniformToFill" Opacity="0.22" RenderTransformOrigin="0.5,0.5">
+            <Image.Effect>
+                <BlurEffect Radius="48" KernelType="Gaussian"/>
+            </Image.Effect>
+        </Image>
+        <Border Background="#C0080a12"/>
+
+        <Grid Margin="48,36,48,72">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition x:Name="ArtCol" Width="0.40*"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <StackPanel x:Name="ArtPanel" Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="0,0,36,0">
+                <Border x:Name="CoverFrame" Width="380" Height="380" CornerRadius="18" ClipToBounds="True"
+                        Background="#18FFFFFF" BorderThickness="1" BorderBrush="#22FFFFFF">
+                    <Border.Effect>
+                        <DropShadowEffect Color="#000" BlurRadius="40" Opacity="0.55" ShadowDepth="8"/>
+                    </Border.Effect>
+                    <Grid>
+                        <TextBlock Text="♪" FontSize="72" Foreground="#30FFFFFF"
+                                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        <Image x:Name="CoverArt" Stretch="Uniform"
+                               HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Grid>
+                </Border>
+                <TextBlock x:Name="FsTitle" Text="" FontSize="26" FontWeight="SemiBold"
+                           Foreground="#F2F4F8" TextAlignment="Center" TextWrapping="Wrap"
+                           MaxWidth="420" Margin="0,22,0,6"/>
+                <TextBlock x:Name="FsArtist" Text="" FontSize="16"
+                           Foreground="#90A8B8" TextAlignment="Center" TextWrapping="Wrap"
+                           MaxWidth="420"/>
+            </StackPanel>
+
+            <Grid x:Name="LyricsHost" Grid.Column="1" ClipToBounds="True" VerticalAlignment="Center">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <local:LyricLineView Grid.Row="0" x:Name="FsCurrent" FontSize="42" IsCurrent="True"
+                                     ClipToBounds="True" Margin="0,0,0,12" MinHeight="80"/>
+                <local:LyricLineView Grid.Row="1" x:Name="FsTrans" FontSize="28"
+                                     ClipToBounds="True" Foreground="#C8DDE8" Margin="0,0,0,8"/>
+                <local:LyricLineView Grid.Row="2" x:Name="FsNext" FontSize="16"
+                                     ClipToBounds="True" Foreground="#70A0B0C0"/>
+            </Grid>
+        </Grid>
+
+        <Border x:Name="ControlBar" VerticalAlignment="Bottom" HorizontalAlignment="Center"
+                Margin="0,0,0,18" CornerRadius="12" Background="#66101018"
+                Padding="10,6" Opacity="0.55">
+            <StackPanel Orientation="Horizontal">
+                <Button x:Name="BtnLayout" Content="專輯" Click="OnToggleLayout" Style="{x:Null}"
+                        ToolTip="專輯版面／全幕歌詞"
+                        Background="Transparent" Foreground="#00d4ff"
+                        BorderThickness="0" FontSize="13" Cursor="Hand"
+                        Padding="10,4" Margin="0,0,8,0"/>
+                <Button Content="原−" Click="OnOriginalSmaller" Style="{x:Null}"
+                        ToolTip="原文細啲"
+                        Background="Transparent" Foreground="#90FFFFFF"
+                        BorderThickness="0" FontSize="12" Cursor="Hand" Width="32" Height="28"/>
+                <Button Content="原+" Click="OnOriginalLarger" Style="{x:Null}"
+                        ToolTip="原文大啲"
+                        Background="Transparent" Foreground="#90FFFFFF"
+                        BorderThickness="0" FontSize="12" Cursor="Hand" Width="32" Height="28" Margin="0,0,6,0"/>
+                <Button Content="譯−" Click="OnTransSmaller" Style="{x:Null}"
+                        ToolTip="譯文細啲"
+                        Background="Transparent" Foreground="#90FFFFFF"
+                        BorderThickness="0" FontSize="12" Cursor="Hand" Width="32" Height="28"/>
+                <Button Content="譯+" Click="OnTransLarger" Style="{x:Null}"
+                        ToolTip="譯文大啲"
+                        Background="Transparent" Foreground="#90FFFFFF"
+                        BorderThickness="0" FontSize="12" Cursor="Hand" Width="32" Height="28" Margin="0,0,8,0"/>
+                <Button x:Name="BtnTrad" Content="繁" Click="OnToggleTrad" Style="{x:Null}"
+                        Background="Transparent" Foreground="#90FFFFFF"
+                        BorderThickness="0" FontSize="13" Cursor="Hand" Width="32" Height="28"/>
+                <Button Content="選" Click="OnPickSong" Style="{x:Null}"
+                        ToolTip="選歌"
+                        Background="Transparent" Foreground="#90FFFFFF"
+                        BorderThickness="0" FontSize="13" Cursor="Hand" Width="32" Height="28"/>
+                <Button Content="Esc" Click="OnClose" Style="{x:Null}"
+                        ToolTip="離開全屏"
+                        Background="Transparent" Foreground="#70FFFFFF"
+                        BorderThickness="0" FontSize="12" Cursor="Hand" Padding="10,4"/>
+            </StackPanel>
+        </Border>
+    </Grid>
+</Window>

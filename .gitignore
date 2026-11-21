@@ -5,3 +5,4 @@ publish/
 *.suo
 .vs/
 *.pdb
+src/DesktopLyric/Fonts/*.ttf

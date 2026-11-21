@@ -1,0 +1,124 @@
+<Window x:Class="DesktopLyric.Views.SavedSongsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="已記選歌"
+        Height="560" Width="480"
+        WindowStartupLocation="CenterOwner"
+        Background="Transparent"
+        WindowStyle="None"
+        AllowsTransparency="True"
+        ShowInTaskbar="False"
+        ResizeMode="CanResizeWithGrip"
+        FontFamily="Noto Sans HK Medium, Microsoft JhengHei UI, Segoe UI"
+        MouseLeftButtonDown="Window_Drag">
+
+    <Border CornerRadius="16" BorderThickness="1" Margin="8">
+        <Border.BorderBrush>
+            <SolidColorBrush Color="#28FFFFFF"/>
+        </Border.BorderBrush>
+        <Border.Background>
+            <SolidColorBrush Color="#E60d0d18"/>
+        </Border.Background>
+        <Border.Effect>
+            <DropShadowEffect Color="#000" BlurRadius="24" Opacity="0.45" ShadowDepth="4"/>
+        </Border.Effect>
+
+        <Grid Margin="18,14,18,14">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <DockPanel Grid.Row="0" Margin="0,0,0,12">
+                <Button DockPanel.Dock="Right" Content="✕" Click="Close_Click"
+                        Background="Transparent" Foreground="#70FFFFFF"
+                        BorderThickness="0" FontSize="12" Cursor="Hand" Width="28" Height="28"/>
+                <TextBlock Text="已記選歌" FontSize="16" FontWeight="Bold"
+                           Foreground="#00d4ff" VerticalAlignment="Center"/>
+            </DockPanel>
+
+            <TextBlock Grid.Row="1" Text="呢度係你揀過並記住嘅歌詞版本。可以刪除，或者改揀另一個來源。"
+                       Foreground="#80A0B0C0" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,10"/>
+
+            <TextBox x:Name="TxtFilter" Grid.Row="2" Margin="0,0,0,10"
+                     Background="#18FFFFFF" Foreground="#F0F0F5" BorderBrush="#22FFFFFF"
+                     CaretBrush="#00d4ff" Padding="8,7" FontSize="12"
+                     ToolTip="篩選歌名／歌手"
+                     TextChanged="Filter_Changed"/>
+
+            <TextBlock x:Name="TxtEmpty" Grid.Row="3" VerticalAlignment="Center"
+                       HorizontalAlignment="Center" TextAlignment="Center"
+                       Foreground="#80A0B0C0" FontSize="12" TextWrapping="Wrap"
+                       Text="未記住任何歌。用「選歌」揀正確版本，就會出現喺呢度。"/>
+            <ListBox x:Name="LstSaved" Grid.Row="3"
+                     Background="#08FFFFFF" BorderBrush="#18FFFFFF"
+                     Foreground="#F0F0F5" FontSize="12"
+                     ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                     MouseDoubleClick="Change_Click" KeyDown="List_KeyDown">
+                <ListBox.ItemContainerStyle>
+                    <Style TargetType="ListBoxItem">
+                        <Setter Property="Background" Value="Transparent"/>
+                        <Setter Property="Foreground" Value="#F0F0F5"/>
+                        <Setter Property="Padding" Value="8,4"/>
+                        <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="ListBoxItem">
+                                    <Border x:Name="Bd" CornerRadius="8" Margin="0,2" Padding="{TemplateBinding Padding}"
+                                            Background="Transparent" BorderBrush="Transparent" BorderThickness="1">
+                                        <ContentPresenter HorizontalAlignment="Stretch"/>
+                                    </Border>
+                                    <ControlTemplate.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter TargetName="Bd" Property="Background" Value="#18FFFFFF"/>
+                                        </Trigger>
+                                        <Trigger Property="IsSelected" Value="True">
+                                            <Setter TargetName="Bd" Property="Background" Value="#3300d4ff"/>
+                                            <Setter TargetName="Bd" Property="BorderBrush" Value="#7000d4ff"/>
+                                        </Trigger>
+                                        <MultiTrigger>
+                                            <MultiTrigger.Conditions>
+                                                <Condition Property="IsSelected" Value="True"/>
+                                                <Condition Property="IsMouseOver" Value="True"/>
+                                            </MultiTrigger.Conditions>
+                                            <Setter TargetName="Bd" Property="Background" Value="#4500d4ff"/>
+                                        </MultiTrigger>
+                                    </ControlTemplate.Triggers>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
+                </ListBox.ItemContainerStyle>
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <StackPanel Margin="4,6">
+                            <TextBlock Text="{Binding Title}" FontSize="13.5" FontWeight="SemiBold"
+                                       Foreground="#F2F4F8" TextWrapping="Wrap"/>
+                            <TextBlock Text="{Binding Subtitle}" FontSize="11"
+                                       Foreground="#90A8B8" Margin="0,3,0,0" TextWrapping="Wrap"/>
+                        </StackPanel>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+
+            <DockPanel Grid.Row="4" Margin="0,12,0,0">
+                <TextBlock x:Name="TxtCount" DockPanel.Dock="Left"
+                           Foreground="#70A0B0C0" FontSize="11" VerticalAlignment="Center"/>
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                    <Button Content="改揀" Click="Change_Click"
+                            Background="#1800d4ff" Foreground="#00d4ff"
+                            BorderBrush="#4000d4ff" Padding="16,7" Cursor="Hand" Margin="0,0,6,0"/>
+                    <Button Content="刪除" Click="Delete_Click"
+                            Background="#10FFFFFF" Foreground="#A0B0C0"
+                            BorderBrush="#20FFFFFF" Padding="16,7" Cursor="Hand" Margin="0,0,6,0"/>
+                    <Button Content="關閉" Click="Close_Click"
+                            Background="#10FFFFFF" Foreground="#A0B0C0"
+                            BorderBrush="#20FFFFFF" Padding="16,7" Cursor="Hand"/>
+                </StackPanel>
+            </DockPanel>
+        </Grid>
+    </Border>
+</Window>

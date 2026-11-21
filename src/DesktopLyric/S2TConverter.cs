@@ -1,62 +1,154 @@
+using System.Collections.Frozen;
+using System.IO;
+using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Text;
 
 namespace DesktopLyric;
 
 /// <summary>
-/// simplified → traditional, just the common ones in lyrics
-/// not a full converter, but good enough for song lyrics
+/// Simplified → Hong Kong Traditional. OpenCC phrase + character tables first
+/// (so 头发/里面/什么 actually convert). Windows LCMapStringEx is 1:1 and skips
+/// one-to-many characters; it is only the fallback if dictionaries fail to load.
+/// Lines with kana are left unchanged so Japanese lyrics are not rewritten.
 /// </summary>
 public static class S2TConverter
 {
+    private const uint LCMAP_TRADITIONAL_CHINESE = 0x04000000;
+
     public static string Convert(string input)
     {
         if (string.IsNullOrEmpty(input)) return input;
+        if (LyricFonts.HasKana(input)) return input;
+
+        var (st, hk) = Tables.Value;
+        if (st.Map.Count == 0) return LcMap(input);
+
+        var trad = Apply(input, st);
+        return hk.Map.Count == 0 ? trad : Apply(trad, hk);
+    }
+
+    private readonly record struct Table(
+        FrozenDictionary<string, string> Map,
+        int MaxLen,
+        HashSet<char> Starters);
+
+    private static readonly Lazy<(Table st, Table hk)> Tables = new(LoadTables);
+
+    private static (Table st, Table hk) LoadTables()
+    {
+        try
+        {
+            var asm = typeof(S2TConverter).Assembly;
+            var names = asm.GetManifestResourceNames();
+            string Find(string suffix) =>
+                names.FirstOrDefault(n => n.EndsWith(suffix, StringComparison.Ordinal))
+                ?? throw new FileNotFoundException(suffix);
+
+            // Characters first, phrases overwrite same keys so multi-char wins.
+            var st = LoadTable(asm, Find("STCharacters.txt"), Find("STPhrases.txt"));
+            var hk = LoadTable(asm, Find("HKVariants.txt"));
+            return (st, hk);
+        }
+        catch
+        {
+            var empty = new Table(FrozenDictionary<string, string>.Empty, 1, []);
+            return (empty, empty);
+        }
+    }
+
+    private static Table LoadTable(Assembly asm, params string[] resourceNames)
+    {
+        var map = new Dictionary<string, string>(StringComparer.Ordinal);
+        var maxLen = 1;
+        foreach (var name in resourceNames)
+        {
+            using var stream = asm.GetManifestResourceStream(name)
+                ?? throw new FileNotFoundException(name);
+            using var reader = new StreamReader(stream, Encoding.UTF8, detectEncodingFromByteOrderMarks: true);
+            while (reader.ReadLine() is { } line)
+            {
+                if (line.Length == 0 || line[0] == '#') continue;
+                var tab = line.IndexOf('\t');
+                if (tab <= 0) continue;
+                var key = line[..tab];
+                var rest = line[(tab + 1)..];
+                var space = rest.IndexOf(' ');
+                var value = space < 0 ? rest : rest[..space];
+                if (key.Length == 0 || value.Length == 0) continue;
+                map[key] = value;
+                if (key.Length > maxLen) maxLen = key.Length;
+            }
+        }
+
+        var starters = new HashSet<char>(map.Count);
+        foreach (var key in map.Keys)
+            starters.Add(key[0]);
+        return new Table(map.ToFrozenDictionary(StringComparer.Ordinal), maxLen, starters);
+    }
+
+    private static string Apply(string input, Table table)
+    {
         var sb = new StringBuilder(input.Length);
-        foreach (var c in input)
-            sb.Append(Map.TryGetValue(c, out var t) ? t : c);
+        for (int i = 0; i < input.Length;)
+        {
+            if (!table.Starters.Contains(input[i]))
+            {
+                sb.Append(input[i]);
+                i++;
+                continue;
+            }
+
+            var max = Math.Min(table.MaxLen, input.Length - i);
+            string? mapped = null;
+            var take = 1;
+            for (int len = max; len >= 1; len--)
+            {
+                if (table.Map.TryGetValue(input.Substring(i, len), out var value))
+                {
+                    mapped = value;
+                    take = len;
+                    break;
+                }
+            }
+
+            if (mapped != null) sb.Append(mapped);
+            else sb.Append(input[i]);
+            i += take;
+        }
         return sb.ToString();
     }
 
-    private static readonly Dictionary<char, char> Map = BuildMap();
-
-    private static Dictionary<char, char> BuildMap()
+    private static string LcMap(string input)
     {
-        var m = new Dictionary<char, char>(300);
-        void A(char s, char t) { m[s] = t; }
-
-        // most common in lyrics — added as I find them
-        A('爱','愛'); A('边','邊'); A('变','變'); A('别','別');
-        A('长','長'); A('车','車'); A('从','從'); A('达','達');
-        A('带','帶'); A('单','單'); A('当','當'); A('点','點');
-        A('东','東'); A('动','動'); A('对','對'); A('发','發');
-        A('飞','飛'); A('风','風'); A('个','個'); A('给','給');
-        A('关','關'); A('过','過'); A('还','還'); A('后','後');
-        A('华','華'); A('欢','歡'); A('会','會'); A('机','機');
-        A('几','幾'); A('间','間'); A('见','見'); A('将','將');
-        A('进','進'); A('经','經'); A('开','開'); A('来','來');
-        A('乐','樂'); A('离','離'); A('里','裡'); A('两','兩');
-        A('灵','靈'); A('龙','龍'); A('马','馬'); A('么','麼');
-        A('没','沒'); A('门','門'); A('们','們'); A('梦','夢');
-        A('难','難'); A('鸟','鳥'); A('让','讓'); A('热','熱');
-        A('认','認'); A('时','時'); A('实','實'); A('说','說');
-        A('虽','雖'); A('岁','歲'); A('听','聽'); A('头','頭');
-        A('万','萬'); A('为','為'); A('问','問'); A('无','無');
-        A('习','習'); A('现','現'); A('乡','鄉'); A('写','寫');
-        A('心','心'); A('兴','興'); A('学','學'); A('样','樣');
-        A('业','業'); A('义','義'); A('应','應'); A('远','遠');
-        A('云','雲'); A('这','這'); A('种','種'); A('转','轉');
-
-        // extra ones I keep seeing in lyrics
-        A('泪','淚'); A('谢','謝'); A('烟','煙'); A('忆','憶');
-        A('隐','隱'); A('忧','憂'); A('游','遊'); A('钟','鐘');
-        A('终','終'); A('属','屬');
-
-        // missed these, showed up in a jay chou song
-        A('国','國'); A('书','書'); A('语','語'); A('话','話');
-        A('请','請'); A('谁','誰'); A('亲','親'); A('轻','輕');
-        A('伤','傷'); A('声','聲'); A('胜','勝'); A('师','師');
-        // TODO: there's probably hundreds more, add as I find them
-
-        return m;
+        try
+        {
+            var dest = new char[checked(input.Length * 2)];
+            int n = LCMapStringEx(
+                "zh-HK",
+                LCMAP_TRADITIONAL_CHINESE,
+                input,
+                input.Length,
+                dest,
+                dest.Length,
+                IntPtr.Zero,
+                IntPtr.Zero,
+                IntPtr.Zero);
+            if (n > 0) return new string(dest, 0, n);
+        }
+        catch { }
+        return input;
     }
+
+    [DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
+    private static extern int LCMapStringEx(
+        string lpLocaleName,
+        uint dwMapFlags,
+        string lpSrcStr,
+        int cchSrc,
+        [Out] char[] lpDestStr,
+        int cchDest,
+        IntPtr lpVersionInformation,
+        IntPtr lpReserved,
+        IntPtr sortHandle);
 }

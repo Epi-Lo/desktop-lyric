@@ -1,0 +1,297 @@
+<Window x:Class="DesktopLyric.Views.TimingEditorWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="時機編輯"
+        Height="740" Width="520"
+        WindowStartupLocation="CenterOwner"
+        Background="#0d0d18"
+        WindowStyle="None"
+        AllowsTransparency="False"
+        ShowInTaskbar="True"
+        ResizeMode="CanResizeWithGrip"
+        FontFamily="Noto Sans HK Medium, Microsoft JhengHei UI, Segoe UI"
+        MouseLeftButtonDown="Window_Drag"
+        PreviewKeyDown="Window_PreviewKeyDown">
+
+    <Border CornerRadius="0" BorderThickness="0" Margin="0">
+        <Border.BorderBrush>
+            <SolidColorBrush Color="#28FFFFFF"/>
+        </Border.BorderBrush>
+        <Border.Background>
+            <SolidColorBrush Color="#F20d0d18"/>
+        </Border.Background>
+
+        <Grid Margin="18,14,18,14">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <DockPanel Grid.Row="0" Margin="0,0,0,8">
+                <Button DockPanel.Dock="Right" Content="✕" Click="Close_Click"
+                        Background="Transparent" Foreground="#70FFFFFF"
+                        BorderThickness="0" FontSize="12" Cursor="Hand" Width="28" Height="28"/>
+                <TextBlock Text="時機編輯" FontSize="16" FontWeight="Bold"
+                           Foreground="#00d4ff" VerticalAlignment="Center"/>
+            </DockPanel>
+
+            <TextBlock Grid.Row="1" Text="匯入會先清空再載入，唔會疊舊句。還原＝返原版歌詞（保留偏移／快慢）。清空＝畫面空白。"
+                       Foreground="#80A0B0C0" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,10"/>
+
+            <StackPanel Grid.Row="2" Margin="0,0,0,10">
+                <TextBlock x:Name="TxtTrack" Foreground="#F0F0F5" FontSize="13" TextTrimming="CharacterEllipsis"/>
+                <TextBlock x:Name="TxtClock" Foreground="#90A8B8" FontSize="12" Margin="0,4,0,0"/>
+                <TextBlock x:Name="TxtFollow" Foreground="#00d4ff" FontSize="12" Margin="0,3,0,0"
+                           TextTrimming="CharacterEllipsis"/>
+            </StackPanel>
+
+            <ListBox x:Name="LstLines" Grid.Row="3"
+                     Background="#08FFFFFF" BorderBrush="#18FFFFFF"
+                     Foreground="#F0F0F5" FontSize="12"
+                     ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                     VirtualizingPanel.IsVirtualizing="False"
+                     ScrollViewer.CanContentScroll="False"
+                     AllowDrop="True"
+                     PreviewMouseLeftButtonDown="Lines_UserPick"
+                     PreviewMouseMove="Lines_MouseMove"
+                     PreviewMouseLeftButtonUp="Lines_MouseUp"
+                     DragOver="Lines_DragOver"
+                     Drop="Lines_Drop"
+                     MouseDoubleClick="Align_Click">
+                <ListBox.ItemContainerStyle>
+                    <Style TargetType="ListBoxItem">
+                        <Setter Property="Background" Value="Transparent"/>
+                        <Setter Property="Foreground" Value="#F0F0F5"/>
+                        <Setter Property="Padding" Value="8,5"/>
+                        <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="ListBoxItem">
+                                    <Border x:Name="Bd" CornerRadius="8" Margin="0,2" Padding="{TemplateBinding Padding}"
+                                            Background="Transparent" BorderBrush="Transparent" BorderThickness="1">
+                                        <ContentPresenter HorizontalAlignment="Stretch"/>
+                                    </Border>
+                                    <ControlTemplate.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter TargetName="Bd" Property="Background" Value="#18FFFFFF"/>
+                                        </Trigger>
+                                        <Trigger Property="IsSelected" Value="True">
+                                            <Setter TargetName="Bd" Property="Background" Value="#3300d4ff"/>
+                                            <Setter TargetName="Bd" Property="BorderBrush" Value="#7000d4ff"/>
+                                        </Trigger>
+                                        <MultiTrigger>
+                                            <MultiTrigger.Conditions>
+                                                <Condition Property="IsSelected" Value="True"/>
+                                                <Condition Property="IsMouseOver" Value="True"/>
+                                            </MultiTrigger.Conditions>
+                                            <Setter TargetName="Bd" Property="Background" Value="#4500d4ff"/>
+                                        </MultiTrigger>
+                                    </ControlTemplate.Triggers>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
+                </ListBox.ItemContainerStyle>
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <StackPanel>
+                            <TextBlock Text="{Binding Display}" TextWrapping="Wrap" Foreground="#F0F0F5"/>
+                            <TextBlock Text="{Binding Translation}" TextWrapping="Wrap"
+                                       Foreground="#80C8E8" FontSize="11" Margin="0,3,0,0">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock">
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding Translation}" Value="">
+                                                <Setter Property="Visibility" Value="Collapsed"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
+                        </StackPanel>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+
+            <StackPanel Grid.Row="4" Margin="0,12,0,0">
+                <Grid Margin="0,0,0,8">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="52"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Text="偏移" Foreground="#E8EEF4" FontSize="13" VerticalAlignment="Center"/>
+                    <Slider x:Name="SldOffset" Grid.Column="1" Minimum="-180000" Maximum="180000"
+                            SmallChange="50" LargeChange="50"
+                            IsMoveToPointEnabled="False"
+                            Thumb.DragStarted="Slider_DragStarted"
+                            Thumb.DragCompleted="Slider_DragCompleted"/>
+                    <TextBlock x:Name="LblOffset" Grid.Column="2" Foreground="#90A8B8"
+                               FontSize="12" VerticalAlignment="Center" MinWidth="64" TextAlignment="Right"/>
+                </Grid>
+                <DockPanel Margin="0,0,0,0">
+                    <TextBlock Text="快慢" Foreground="#E8EEF4" FontSize="13" VerticalAlignment="Center" Width="52"/>
+                    <StackPanel Orientation="Horizontal">
+                        <Button Content="−"
+                                PreviewMouseLeftButtonDown="RateSlower_Down"
+                                PreviewMouseLeftButtonUp="RateHold_Up"
+                                LostMouseCapture="RateHold_Up"
+                                ToolTip="慢一點（每下 0.5%）。長按重複微調"
+                                Background="#10FFFFFF" Foreground="#A0B0C0"
+                                BorderBrush="#20FFFFFF" Padding="10,5" Cursor="Hand" Width="32"/>
+                        <TextBlock x:Name="LblRate" Text="1.000×" Foreground="#90A8B8"
+                                   FontSize="12" VerticalAlignment="Center" MinWidth="148"
+                                   TextAlignment="Center" Margin="8,0"/>
+                        <Button Content="＋"
+                                PreviewMouseLeftButtonDown="RateFaster_Down"
+                                PreviewMouseLeftButtonUp="RateHold_Up"
+                                LostMouseCapture="RateHold_Up"
+                                ToolTip="快一點（每下 0.5%）。長按重複微調"
+                                Background="#10FFFFFF" Foreground="#A0B0C0"
+                                BorderBrush="#20FFFFFF" Padding="10,5" Cursor="Hand" Width="32"/>
+                    </StackPanel>
+                </DockPanel>
+                <DockPanel Margin="0,10,0,0">
+                    <TextBlock Text="呢句" Foreground="#E8EEF4" FontSize="13" VerticalAlignment="Center" Width="52"/>
+                    <Button DockPanel.Dock="Right" Content="重設呢句" Click="ResetLine_Click"
+                            Background="#10FFFFFF" Foreground="#A0B0C0"
+                            BorderBrush="#20FFFFFF" Padding="10,5" Cursor="Hand" FontSize="11"/>
+                    <StackPanel Orientation="Horizontal">
+                        <Button Content="−"
+                                PreviewMouseLeftButtonDown="LineLater_Down"
+                                PreviewMouseLeftButtonUp="LineHold_Up"
+                                LostMouseCapture="LineHold_Up"
+                                ToolTip="呢句遲啲出現。撳一下 0.05s，長按加快"
+                                Background="#10FFFFFF" Foreground="#A0B0C0"
+                                BorderBrush="#20FFFFFF" Padding="10,5" Cursor="Hand" Width="32"/>
+                        <TextBlock x:Name="LblLine" Text="±0.00s" Foreground="#90A8B8"
+                                   FontSize="12" VerticalAlignment="Center" MinWidth="64"
+                                   TextAlignment="Center" Margin="6,0"/>
+                        <Button Content="＋"
+                                PreviewMouseLeftButtonDown="LineEarlier_Down"
+                                PreviewMouseLeftButtonUp="LineHold_Up"
+                                LostMouseCapture="LineHold_Up"
+                                ToolTip="呢句早啲出現。撳一下 0.05s，長按加快"
+                                Background="#10FFFFFF" Foreground="#A0B0C0"
+                                BorderBrush="#20FFFFFF" Padding="10,5" Cursor="Hand" Width="32" Margin="0,0,10,0"/>
+                        <Button Content="對準呢句" Click="Align_Click"
+                                ToolTip="令選中嘅呢一句對準而家播放位置（只改呢句）"
+                                Background="#1800d4ff" Foreground="#00d4ff"
+                                BorderBrush="#4000d4ff" Padding="10,5" Cursor="Hand"/>
+                    </StackPanel>
+                </DockPanel>
+                <DockPanel Margin="0,8,0,0">
+                    <TextBlock Text="停留" Foreground="#E8EEF4" FontSize="13" VerticalAlignment="Center" Width="52"/>
+                    <StackPanel Orientation="Horizontal">
+                        <Button Content="−"
+                                PreviewMouseLeftButtonDown="StayShorter_Down"
+                                PreviewMouseLeftButtonUp="StayHold_Up"
+                                LostMouseCapture="StayHold_Up"
+                                ToolTip="呢句早啲消失。撳一下 0.25s，長按加快"
+                                Background="#10FFFFFF" Foreground="#A0B0C0"
+                                BorderBrush="#20FFFFFF" Padding="10,5" Cursor="Hand" Width="32"/>
+                        <TextBlock x:Name="LblStay" Text="0.00s" Foreground="#90A8B8"
+                                   FontSize="12" VerticalAlignment="Center" MinWidth="64"
+                                   TextAlignment="Center" Margin="6,0"/>
+                        <Button Content="＋"
+                                PreviewMouseLeftButtonDown="StayLonger_Down"
+                                PreviewMouseLeftButtonUp="StayHold_Up"
+                                LostMouseCapture="StayHold_Up"
+                                ToolTip="呢句拉長停留。撳一下 0.25s，長按加快（Live 拖音）"
+                                Background="#10FFFFFF" Foreground="#A0B0C0"
+                                BorderBrush="#20FFFFFF" Padding="10,5" Cursor="Hand" Width="32"/>
+                    </StackPanel>
+                </DockPanel>
+                <DockPanel Margin="0,8,0,0">
+                    <TextBlock Text="歌詞" Foreground="#E8EEF4" FontSize="13" VerticalAlignment="Center" Width="52"/>
+                    <Button DockPanel.Dock="Right" Content="套用" Click="ApplyText_Click"
+                            ToolTip="用呢格字取代選中句（Live 唔同詞）。空白＝刪呢句顯示"
+                            Background="#1800d4ff" Foreground="#00d4ff"
+                            BorderBrush="#4000d4ff" Padding="10,5" Cursor="Hand" Margin="8,0,0,0"/>
+                    <TextBox x:Name="TxtEdit"
+                             Background="#18FFFFFF" Foreground="#F0F0F5" BorderBrush="#22FFFFFF"
+                             CaretBrush="#00d4ff" Padding="8,6" FontSize="12"
+                             VerticalContentAlignment="Center"
+                             ToolTip="改選中句原文（上排）。Enter 套用。"
+                             KeyDown="Edit_KeyDown"/>
+                </DockPanel>
+                <DockPanel Margin="0,6,0,0">
+                    <TextBlock Text="譯文" Foreground="#E8EEF4" FontSize="13" VerticalAlignment="Center" Width="52"/>
+                    <TextBox x:Name="TxtTrans"
+                             Background="#18FFFFFF" Foreground="#F0F0F5" BorderBrush="#22FFFFFF"
+                             CaretBrush="#00d4ff" Padding="8,6" FontSize="12"
+                             VerticalContentAlignment="Center"
+                             ToolTip="中文字幕（下排，同 overlay）。Enter 套用。"
+                             KeyDown="Edit_KeyDown"/>
+                </DockPanel>
+                <DockPanel Margin="0,8,0,0">
+                    <TextBlock Width="52"/>
+                    <WrapPanel>
+                        <Button Content="插入呢度" Click="Insert_Click"
+                                ToolTip="喺而家歌詞時間插入一新句（用上面歌詞格）"
+                                Background="#10FFFFFF" Foreground="#A0B0C0"
+                                BorderBrush="#20FFFFFF" Padding="10,5" Cursor="Hand" Margin="0,0,6,4"/>
+                        <Button Content="複製" Click="Duplicate_Click"
+                                ToolTip="複製選中句（原文＋中文），插喺後面。亦寫入剪貼簿。Ctrl+D"
+                                Background="#10FFFFFF" Foreground="#A0B0C0"
+                                BorderBrush="#20FFFFFF" Padding="10,5" Cursor="Hand" Margin="0,0,6,4"/>
+                        <Button Content="上移" Click="MoveUp_Click"
+                                ToolTip="同上一句調位。列表可拖動。Alt+↑"
+                                Background="#10FFFFFF" Foreground="#A0B0C0"
+                                BorderBrush="#20FFFFFF" Padding="10,5" Cursor="Hand" Margin="0,0,6,4"/>
+                        <Button Content="下移" Click="MoveDown_Click"
+                                ToolTip="同下一句調位。列表可拖動。Alt+↓"
+                                Background="#10FFFFFF" Foreground="#A0B0C0"
+                                BorderBrush="#20FFFFFF" Padding="10,5" Cursor="Hand" Margin="0,0,6,4"/>
+                        <Button Content="刪呢句" Click="Delete_Click"
+                                ToolTip="隱藏選中句。Live 冇唱呢句就刪。"
+                                Background="#10FFFFFF" Foreground="#A0B0C0"
+                                BorderBrush="#20FFFFFF" Padding="10,5" Cursor="Hand" Margin="0,0,6,4"/>
+                        <Button Content="複製全部" Click="CopyAll_Click"
+                                ToolTip="複製成上原文下譯文 LRC。Ctrl+Shift+C"
+                                Background="#10FFFFFF" Foreground="#A0B0C0"
+                                BorderBrush="#20FFFFFF" Padding="10,5" Cursor="Hand" Margin="0,0,6,4"/>
+                        <Button Content="貼上" Click="Paste_Click"
+                                ToolTip="插入到而家列表（唔清空）。成份換走用匯入。Ctrl+V"
+                                Background="#10FFFFFF" Foreground="#A0B0C0"
+                                BorderBrush="#20FFFFFF" Padding="10,5" Cursor="Hand" Margin="0,0,6,4"/>
+                        <Button Content="匯出" Click="Export_Click"
+                                ToolTip="匯出 LRC（時間戳＋偏移＋快慢＋停留＋上原文下中文）"
+                                Background="#10FFFFFF" Foreground="#A0B0C0"
+                                BorderBrush="#20FFFFFF" Padding="10,5" Cursor="Hand" Margin="0,0,6,4"/>
+                        <Button Content="匯入" Click="Import_Click"
+                                ToolTip="先清空再載入 LRC（連偏移／快慢）。唔會同舊句重疊。還原可返原版"
+                                Background="#10FFFFFF" Foreground="#A0B0C0"
+                                BorderBrush="#20FFFFFF" Padding="10,5" Cursor="Hand" Margin="0,0,6,4"/>
+                    </WrapPanel>
+                </DockPanel>
+            </StackPanel>
+
+            <DockPanel Grid.Row="5" Margin="0,12,0,0">
+                <CheckBox x:Name="ChkFollow" DockPanel.Dock="Left" Content="跟隨播放"
+                          IsChecked="True" Foreground="#A0B0C0" VerticalAlignment="Center"/>
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                    <Button Content="還原" Click="Restore_Click"
+                            ToolTip="返原版歌詞（搜尋到嗰份）。保留整首偏移／快慢。改錯唔驚。"
+                            Background="#1800d4ff" Foreground="#00d4ff"
+                            BorderBrush="#4000d4ff" Padding="14,7" Cursor="Hand" Margin="0,0,6,0"/>
+                    <Button Content="清空" Click="Clear_Click"
+                            ToolTip="畫面歌詞清空。原版仲喺，撳還原就返。"
+                            Background="#10FFFFFF" Foreground="#A0B0C0"
+                            BorderBrush="#20FFFFFF" Padding="14,7" Cursor="Hand" Margin="0,0,6,0"/>
+                    <Button Content="全部重設" Click="Reset_Click"
+                            ToolTip="連偏移／快慢都重設，返原版時機。"
+                            Background="#10FFFFFF" Foreground="#A0B0C0"
+                            BorderBrush="#20FFFFFF" Padding="14,7" Cursor="Hand" Margin="0,0,6,0"/>
+                    <Button Content="完成" Click="Close_Click"
+                            Background="#10FFFFFF" Foreground="#A0B0C0"
+                            BorderBrush="#20FFFFFF" Padding="14,7" Cursor="Hand"/>
+                </StackPanel>
+            </DockPanel>
+        </Grid>
+    </Border>
+</Window>

@@ -7,7 +7,7 @@ namespace DesktopLyric.Services;
 public static class UpdateChecker
 {
     private static readonly HttpClient _http = new() { Timeout = TimeSpan.FromSeconds(8) };
-    public const string CurrentVersion = "1.0.0"; // bump this when releasing
+    public const string CurrentVersion = "1.1.0"; // bump this when releasing
     private const string Repo = "Epi-Lo/desktop-lyric";
 
     public record UpdateInfo(string Version, string Url, string Notes);
@@ -19,7 +19,7 @@ public static class UpdateChecker
             using var req = new HttpRequestMessage(HttpMethod.Get,
                 $"https://api.github.com/repos/{Repo}/releases/latest");
             req.Headers.UserAgent.ParseAdd("DesktopLyric/0.9");
-            var resp = await _http.SendAsync(req);
+            using var resp = await _http.SendAsync(req);
             if (!resp.IsSuccessStatusCode) return null;
 
             using var doc = JsonDocument.Parse(await resp.Content.ReadAsStringAsync());
