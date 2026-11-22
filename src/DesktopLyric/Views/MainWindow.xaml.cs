@@ -90,6 +90,9 @@ public partial class MainWindow : Window
     public MainWindow()
     {
         InitializeComponent();
+        // footer was typed by hand as v0.9.0 and never changed, take it from the update checker
+        TxtVersion.Text = "v" + UpdateChecker.CurrentVersion;
+        RefreshOverlayButton();
         _settings = AppSettings.Load();
         Loaded += OnLoaded;
 
@@ -1296,7 +1299,13 @@ public partial class MainWindow : Window
         _overlay.FullscreenRequested += ShowFullscreen;
         _overlay.TimingEditorRequested += OpenTimingEditor;
         _overlay.LockToggled += OnLyricsLockToggled;
-        _overlay.Closed += (_, _) => _overlay = null;
+        // tray, fullscreen and the overlay's own x can also hide it, so follow the window itself
+        _overlay.IsVisibleChanged += (_, _) => RefreshOverlayButton();
+        _overlay.Closed += (_, _) =>
+        {
+            _overlay = null;
+            RefreshOverlayButton();
+        };
         _overlay.Show();
         RefreshOffsetUi();
     }
@@ -1512,6 +1521,19 @@ public partial class MainWindow : Window
             _overlay.Close();
             _overlay = null;
         }
+    }
+
+    // the button used to just say "overlay", cannot tell it is open or not
+    private void RefreshOverlayButton()
+    {
+        var on = _overlay is { IsVisible: true };
+        BtnOverlay.Content = on ? "overlay on" : "overlay off";
+
+        var cyan = System.Windows.Media.Color.FromRgb(0x00, 0xd4, 0xff);
+        var grey = System.Windows.Media.Color.FromRgb(0x8b, 0x93, 0xa3);
+        BtnOverlay.Foreground = new System.Windows.Media.SolidColorBrush(on ? cyan : grey);
+        BtnOverlay.BorderBrush = new System.Windows.Media.SolidColorBrush(
+            on ? cyan : System.Windows.Media.Color.FromArgb(0x29, 0xFF, 0xFF, 0xFF));
     }
 
     private void ExportLrc_Click(object sender, RoutedEventArgs e)

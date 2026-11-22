@@ -18,20 +18,92 @@
         MouseLeftButtonDown="Window_Drag"
         PreviewKeyDown="Window_PreviewKeyDown">
 
-    <Border CornerRadius="16" ClipToBounds="True" BorderThickness="1">
-        <Border.BorderBrush>
-            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                <GradientStop Color="#25FFFFFF" Offset="0"/>
-                <GradientStop Color="#08FFFFFF" Offset="1"/>
-            </LinearGradientBrush>
-        </Border.BorderBrush>
-        <Border.Background>
-            <LinearGradientBrush StartPoint="0,0" EndPoint="0.3,1">
-                <GradientStop Color="#0a0a12" Offset="0"/>
-                <GradientStop Color="#0d0d18" Offset="0.5"/>
-                <GradientStop Color="#080810" Offset="1"/>
-            </LinearGradientBrush>
-        </Border.Background>
+    <Window.Resources>
+        <!-- 12 buttons used to copy the same look 12 times, one style each kind now -->
+        <Style x:Key="Pill" TargetType="Button">
+            <Setter Property="Foreground" Value="#c9cfda"/>
+            <Setter Property="BorderBrush" Value="#29FFFFFF"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Height" Value="34"/>
+            <Setter Property="Padding" Value="12,0"/>
+            <Setter Property="Margin" Value="0,0,8,0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Bd" CornerRadius="17" BorderThickness="1"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                Background="{TemplateBinding Background}"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="#0FFFFFFF"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="#1AFFFFFF"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="RoundPill" TargetType="Button" BasedOn="{StaticResource Pill}">
+            <Setter Property="Width" Value="34"/>
+            <Setter Property="Padding" Value="0"/>
+            <Setter Property="Margin" Value="0"/>
+            <Setter Property="FontSize" Value="14"/>
+        </Style>
+
+        <Style x:Key="Link" TargetType="Button">
+            <Setter Property="Foreground" Value="#a9b2c2"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Margin" Value="0,0,16,0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="Transparent" Padding="0,6">
+                            <TextBlock x:Name="Txt" Text="{Binding Content, RelativeSource={RelativeSource TemplatedParent}}"
+                                       Foreground="{TemplateBinding Foreground}"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Txt" Property="Foreground" Value="#FFFFFF"/>
+                                <Setter TargetName="Txt" Property="TextDecorations" Value="Underline"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="WinButton" TargetType="Button">
+            <Setter Property="Width" Value="34"/>
+            <Setter Property="Height" Value="34"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Bd" CornerRadius="8" Background="Transparent">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="#14FFFFFF"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+
+    <Border CornerRadius="16" ClipToBounds="True" BorderThickness="1"
+            BorderBrush="#1AFFFFFF" Background="#0b0b12">
 
         <Grid Margin="22,14,22,12">
             <Grid.RowDefinitions>
@@ -41,216 +113,150 @@
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
 
             <!-- Titlebar -->
-            <DockPanel Grid.Row="0" Margin="0,0,0,14">
+            <DockPanel Grid.Row="0" Height="38">
                 <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
-                    <Button Content="─" Click="Minimize_Click"
-                            Background="Transparent" Foreground="#50FFFFFF"
-                            BorderThickness="0" FontSize="13" Cursor="Hand"
-                            Width="30" Height="30"/>
-                    <Button Content="✕" Click="Close_Click"
-                            Background="Transparent" Foreground="#50FFFFFF"
-                            BorderThickness="0" FontSize="11" Cursor="Hand"
-                            Width="30" Height="30"/>
+                    <Button Style="{StaticResource WinButton}" Click="Minimize_Click" ToolTip="縮細"
+                            AutomationProperties.Name="縮細">
+                        <Path Data="M2.5,7.3 C5.5,6.9 8.5,7.6 11.5,7.1" Stroke="#8b93a3" StrokeThickness="1.5"
+                              StrokeStartLineCap="Round" StrokeEndLineCap="Round" Width="14" Height="14"/>
+                    </Button>
+                    <Button Style="{StaticResource WinButton}" Click="Close_Click" ToolTip="收埋（去 tray 揀結束先會走）"
+                            AutomationProperties.Name="收埋">
+                        <Path Data="M3,3.3 C5.6,5.7 8.3,8.3 11,10.9 M11,3.1 C8.3,5.7 5.8,8.5 3,11" Stroke="#8b93a3" StrokeThickness="1.5"
+                              StrokeStartLineCap="Round" StrokeEndLineCap="Round" Width="14" Height="14"/>
+                    </Button>
                 </StackPanel>
-                <TextBlock Text="Desktop Lyric" FontSize="16" FontWeight="Bold"
-                           Foreground="#00d4ff" VerticalAlignment="Center"/>
+                <Grid VerticalAlignment="Center" HorizontalAlignment="Left">
+                    <TextBlock Text="Desktop Lyric" FontSize="16" FontWeight="Bold" Foreground="#00d4ff"/>
+                    <!-- drawn by hand, a straight line looked too clean -->
+                    <Path Data="M1,3.6 C15,2 31,1.6 47,2.4 C65,3.3 85,3 111,0.6" Stroke="#8C00d4ff" StrokeThickness="1.4"
+                          StrokeStartLineCap="Round" StrokeEndLineCap="Round"
+                          VerticalAlignment="Bottom" Margin="1,0,0,-7"/>
+                </Grid>
             </DockPanel>
 
-            <!-- Now Playing -->
-            <Border Grid.Row="1" CornerRadius="12" Padding="14" Margin="0,0,0,12"
-                    BorderThickness="1" BorderBrush="#18FFFFFF">
-                <Border.Background>
-                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                        <GradientStop Color="#0e0e18" Offset="0"/>
-                        <GradientStop Color="#12121e" Offset="1"/>
-                    </LinearGradientBrush>
-                </Border.Background>
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="52"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
-                    <Border Grid.Column="0" CornerRadius="8" Width="44" Height="44"
-                            Background="#15FFFFFF" ClipToBounds="True">
-                        <Border.CacheMode>
-                            <BitmapCache EnableClearType="False" SnapsToDevicePixels="True"/>
-                        </Border.CacheMode>
-                        <Image x:Name="AlbumArt" Stretch="Uniform"
-                               HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                    </Border>
-                    <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="12,0,0,0">
-                        <TextBlock x:Name="TxtTitle" Text="waiting..."
-                                   Foreground="#f0f0f5" FontSize="14" FontWeight="SemiBold"
-                                   TextTrimming="CharacterEllipsis"/>
-                        <TextBlock x:Name="TxtArtist" Text=""
-                                   Foreground="#6e7a8a" FontSize="11" Margin="0,3,0,0"
-                                   TextTrimming="CharacterEllipsis"/>
-                    </StackPanel>
-                </Grid>
-            </Border>
+            <!-- Now Playing, status moved in here so it is not a row on its own -->
+            <Grid Grid.Row="1" Margin="0,14,0,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="64"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Border Grid.Column="0" CornerRadius="7" Width="64" Height="64"
+                        Background="#15FFFFFF" ClipToBounds="True">
+                    <Border.CacheMode>
+                        <BitmapCache EnableClearType="False" SnapsToDevicePixels="True"/>
+                    </Border.CacheMode>
+                    <Image x:Name="AlbumArt" Stretch="Uniform"
+                           HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                </Border>
+                <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="14,0,0,0">
+                    <TextBlock x:Name="TxtTitle" Text="waiting..."
+                               Foreground="#f0f0f5" FontSize="16" FontWeight="SemiBold"
+                               TextTrimming="CharacterEllipsis"/>
+                    <TextBlock x:Name="TxtArtist" Text=""
+                               Foreground="#a9b2c2" FontSize="12.5" Margin="0,2,0,0"
+                               TextTrimming="CharacterEllipsis"/>
+                    <DockPanel Margin="0,6,0,0">
+                        <TextBlock x:Name="TxtTime" DockPanel.Dock="Right" Text=""
+                                   Foreground="#8b93a3" FontSize="11" FontFamily="Consolas"/>
+                        <StackPanel Orientation="Horizontal">
+                            <Ellipse x:Name="StatusDot" Width="6" Height="6"
+                                     Fill="#333" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                            <TextBlock x:Name="TxtStatus" Text="not connected"
+                                       Foreground="#8b93a3" FontSize="11"
+                                       TextTrimming="CharacterEllipsis"/>
+                        </StackPanel>
+                    </DockPanel>
+                </StackPanel>
+            </Grid>
 
-            <!-- Status -->
-            <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="4,0,0,8">
-                <Ellipse x:Name="StatusDot" Width="6" Height="6"
-                         Fill="#333" VerticalAlignment="Center" Margin="0,0,6,0"/>
-                <TextBlock x:Name="TxtStatus" Text="not connected"
-                           Foreground="#4a5060" FontSize="10"/>
-            </StackPanel>
+            <Border Grid.Row="2" Height="1" Background="#14FFFFFF" Margin="0,14,0,0"/>
 
-            <!-- Lyrics -->
-            <Border Grid.Row="3" CornerRadius="12" Padding="16,12" Margin="0,0,0,10"
-                    BorderThickness="1" BorderBrush="#12FFFFFF">
-                <Border.CacheMode>
+            <!-- Lyrics, no card around it anymore -->
+            <Grid Grid.Row="3" Margin="0,6">
+                <Grid.CacheMode>
                     <BitmapCache RenderAtScale="1.25" EnableClearType="False" SnapsToDevicePixels="False"/>
-                </Border.CacheMode>
-                <Border.Background>
-                    <SolidColorBrush Color="#0a0a12" Opacity="0.6"/>
-                </Border.Background>
+                </Grid.CacheMode>
                 <StackPanel VerticalAlignment="Center">
                     <TextBlock x:Name="TxtPrev" Text=""
-                               FontSize="11.5" Foreground="#30FFFFFF"
-                               TextAlignment="Center" Margin="0,0,0,2"
+                               FontSize="12" Foreground="#59FFFFFF"
+                               TextAlignment="Center" Margin="0,0,0,4"
                                TextWrapping="Wrap"/>
                     <TextBlock x:Name="TxtRomaji" Text=""
-                               FontSize="10" Foreground="#5090c0"
+                               FontSize="10.5" Foreground="#5090c0"
                                TextAlignment="Center" FontStyle="Italic"
                                Margin="0,0,0,3"/>
-                    <local:LyricLineView x:Name="TxtCurrent" FontSize="18" IsCurrent="True"
-                                         MinHeight="26" Margin="0,2,0,2"/>
-                    <local:LyricLineView x:Name="TxtTrans" FontSize="18"
-                                         Foreground="#C0C8D8" MinHeight="24" Margin="0,2,0,0"/>
+                    <local:LyricLineView x:Name="TxtCurrent" FontSize="20" IsCurrent="True"
+                                         MinHeight="28" Margin="0,2,0,2"/>
+                    <local:LyricLineView x:Name="TxtTrans" FontSize="15"
+                                         Foreground="#a9b2c2" MinHeight="22" Margin="0,2,0,0"/>
                     <TextBlock x:Name="TxtNext" Text=""
-                               FontSize="11.5" Foreground="#30FFFFFF"
-                               TextAlignment="Center" Margin="0,2,0,0"
+                               FontSize="12" Foreground="#59FFFFFF"
+                               TextAlignment="Center" Margin="0,4,0,0"
                                TextWrapping="Wrap"/>
                 </StackPanel>
-            </Border>
+            </Grid>
 
-            <!-- Buttons -->
-            <WrapPanel Grid.Row="4" HorizontalAlignment="Center" Margin="0,0,0,10">
-                <Button x:Name="BtnFont" Content="昭源圓體" Click="CycleFont_Click"
-                        ToolTip="切換中文字型"
-                        Background="#0CFFFFFF" Foreground="#a0b0c0"
-                        BorderBrush="#15FFFFFF" BorderThickness="1"
-                        Padding="14,7" FontSize="11" Cursor="Hand" Margin="3">
-                    <Button.Resources>
-                        <Style TargetType="Border"><Setter Property="CornerRadius" Value="16"/></Style>
-                    </Button.Resources>
-                </Button>
-                <Button x:Name="BtnTrad" Content="繁體" Click="ToggleTraditional_Click"
-                        Background="#0CFFFFFF" Foreground="#00d4ff"
-                        BorderBrush="#15FFFFFF" BorderThickness="1"
-                        Padding="14,7" FontSize="11" Cursor="Hand" Margin="3">
-                    <Button.Resources>
-                        <Style TargetType="Border"><Setter Property="CornerRadius" Value="16"/></Style>
-                    </Button.Resources>
-                </Button>
-                <Button Content="選歌" Click="PickSong_Click"
-                        ToolTip="同名歌揀正確版本"
-                        Background="#0CFFFFFF" Foreground="#a0b0c0"
-                        BorderBrush="#15FFFFFF" BorderThickness="1"
-                        Padding="14,7" FontSize="11" Cursor="Hand" Margin="3">
-                    <Button.Resources>
-                        <Style TargetType="Border"><Setter Property="CornerRadius" Value="16"/></Style>
-                    </Button.Resources>
-                </Button>
-                <Button Content="記憶" Click="SavedSongs_Click"
-                        ToolTip="檢視、改揀或刪除已記住嘅歌詞"
-                        Background="#0CFFFFFF" Foreground="#a0b0c0"
-                        BorderBrush="#15FFFFFF" BorderThickness="1"
-                        Padding="14,7" FontSize="11" Cursor="Hand" Margin="3">
-                    <Button.Resources>
-                        <Style TargetType="Border"><Setter Property="CornerRadius" Value="16"/></Style>
-                    </Button.Resources>
-                </Button>
-                <Button Content="−"
+            <Border Grid.Row="4" Height="1" Background="#14FFFFFF"/>
+
+            <!-- what you touch most is biggest: quick settings first -->
+            <StackPanel Grid.Row="5" Orientation="Horizontal" Margin="0,12,0,0">
+                <Button x:Name="BtnTrad" Style="{StaticResource Pill}" Content="繁體"
+                        Click="ToggleTraditional_Click" Foreground="#00d4ff"
+                        ToolTip="譯文用繁體（香港用字）"/>
+                <Button x:Name="BtnFont" Style="{StaticResource Pill}" Content="昭源圓體"
+                        Click="CycleFont_Click" ToolTip="切換中文字型"/>
+                <Button x:Name="BtnOverlay" Style="{StaticResource Pill}" Content="overlay on"
+                        Click="ToggleOverlay_Click" ToolTip="開／收桌面歌詞"/>
+            </StackPanel>
+
+            <DockPanel Grid.Row="6" Margin="0,10,0,0" LastChildFill="False">
+                <TextBlock Text="歌詞時間" Foreground="#a9b2c2" FontSize="12"
+                           VerticalAlignment="Center" Margin="0,0,8,0"
+                           ToolTip="歌詞早咗撳 −，遲咗撳 ＋；撳一下 0.05s，長按加快"/>
+                <Button Content="−" Style="{StaticResource RoundPill}"
                         PreviewMouseLeftButtonDown="OffsetLater_Down"
                         PreviewMouseLeftButtonUp="OffsetHold_Up"
                         LostMouseCapture="OffsetHold_Up"
-                        ToolTip="歌詞早咗：延遲。撳一下 0.05s，長按加快（最多 ±5 分鐘）"
-                        Background="#0CFFFFFF" Foreground="#a0b0c0"
-                        BorderBrush="#15FFFFFF" BorderThickness="1"
-                        Padding="10,7" FontSize="11" Cursor="Hand" Margin="3,3,0,3">
-                    <Button.Resources>
-                        <Style TargetType="Border"><Setter Property="CornerRadius" Value="16"/></Style>
-                    </Button.Resources>
-                </Button>
+                        ToolTip="歌詞早咗：延遲。撳一下 0.05s，長按加快（最多 ±5 分鐘）"/>
                 <Button x:Name="BtnOffset" Content="±0.00s" Click="OffsetReset_Click"
-                        ToolTip="重設呢首歌嘅偏移同快慢"
-                        Background="#0CFFFFFF" Foreground="#a0b0c0"
-                        BorderBrush="#15FFFFFF" BorderThickness="1"
-                        Padding="10,7" FontSize="11" Cursor="Hand" Margin="0,3,0,3">
-                    <Button.Resources>
-                        <Style TargetType="Border"><Setter Property="CornerRadius" Value="16"/></Style>
-                    </Button.Resources>
-                </Button>
-                <Button Content="＋"
+                        Style="{StaticResource Pill}" BorderBrush="Transparent"
+                        Foreground="#a0b0c0" FontFamily="Consolas" Margin="2,0" MinWidth="64"
+                        ToolTip="重設呢首歌嘅偏移同快慢"/>
+                <Button Content="＋" Style="{StaticResource RoundPill}"
                         PreviewMouseLeftButtonDown="OffsetEarlier_Down"
                         PreviewMouseLeftButtonUp="OffsetHold_Up"
                         LostMouseCapture="OffsetHold_Up"
-                        ToolTip="歌詞遲咗：提早。撳一下 0.05s，長按加快（最多 ±5 分鐘）"
-                        Background="#0CFFFFFF" Foreground="#a0b0c0"
-                        BorderBrush="#15FFFFFF" BorderThickness="1"
-                        Padding="10,7" FontSize="11" Cursor="Hand" Margin="0,3,3,3">
-                    <Button.Resources>
-                        <Style TargetType="Border"><Setter Property="CornerRadius" Value="16"/></Style>
-                    </Button.Resources>
-                </Button>
-                <Button Content="時機" Click="TimingEditor_Click"
-                        ToolTip="時機編輯：偏移＋快慢＋改詞＋停留（適合 YouTube Live）"
-                        Background="#0CFFFFFF" Foreground="#a0b0c0"
-                        BorderBrush="#15FFFFFF" BorderThickness="1"
-                        Padding="14,7" FontSize="11" Cursor="Hand" Margin="3">
-                    <Button.Resources>
-                        <Style TargetType="Border"><Setter Property="CornerRadius" Value="16"/></Style>
-                    </Button.Resources>
-                </Button>
-                <Button Content="全屏" Click="Fullscreen_Click"
-                        ToolTip="專輯版面／全幕歌詞（F11）"
-                        Background="#0CFFFFFF" Foreground="#a0b0c0"
-                        BorderBrush="#15FFFFFF" BorderThickness="1"
-                        Padding="14,7" FontSize="11" Cursor="Hand" Margin="3">
-                    <Button.Resources>
-                        <Style TargetType="Border"><Setter Property="CornerRadius" Value="16"/></Style>
-                    </Button.Resources>
-                </Button>
-                <Button Content="overlay" Click="ToggleOverlay_Click"
-                        Background="#0CFFFFFF" Foreground="#a0b0c0"
-                        BorderBrush="#15FFFFFF" BorderThickness="1"
-                        Padding="14,7" FontSize="11" Cursor="Hand" Margin="3">
-                    <Button.Resources>
-                        <Style TargetType="Border"><Setter Property="CornerRadius" Value="16"/></Style>
-                    </Button.Resources>
-                </Button>
-                <Button Content="export lrc" Click="ExportLrc_Click"
-                        Background="#0CFFFFFF" Foreground="#a0b0c0"
-                        BorderBrush="#15FFFFFF" BorderThickness="1"
-                        Padding="14,7" FontSize="11" Cursor="Hand" Margin="3">
-                    <Button.Resources>
-                        <Style TargetType="Border"><Setter Property="CornerRadius" Value="16"/></Style>
-                    </Button.Resources>
-                </Button>
-                <Button Content="設定" Click="Settings_Click"
-                        ToolTip="顯示、overlay、字級、開機啟動"
-                        Background="#0CFFFFFF" Foreground="#a0b0c0"
-                        BorderBrush="#15FFFFFF" BorderThickness="1"
-                        Padding="14,7" FontSize="11" Cursor="Hand" Margin="3">
-                    <Button.Resources>
-                        <Style TargetType="Border"><Setter Property="CornerRadius" Value="16"/></Style>
-                    </Button.Resources>
-                </Button>
+                        ToolTip="歌詞遲咗：提早。撳一下 0.05s，長按加快（最多 ±5 分鐘）"/>
+                <Button DockPanel.Dock="Right" Content="選歌" Click="PickSong_Click"
+                        Style="{StaticResource Pill}" Height="38" Padding="18,0" Margin="0"
+                        FontSize="13" BorderBrush="#00d4ff" Foreground="#00d4ff"
+                        ToolTip="同名歌揀正確版本"/>
+            </DockPanel>
+
+            <WrapPanel Grid.Row="7" Margin="0,8,0,0">
+                <Button Content="記憶" Style="{StaticResource Link}" Click="SavedSongs_Click"
+                        ToolTip="檢視、改揀或刪除已記住嘅歌詞"/>
+                <Button Content="時機" Style="{StaticResource Link}" Click="TimingEditor_Click"
+                        ToolTip="時機編輯：偏移＋快慢＋改詞＋停留（適合 YouTube Live）"/>
+                <Button Content="全屏" Style="{StaticResource Link}" Click="Fullscreen_Click"
+                        ToolTip="專輯版面／全幕歌詞（F11）"/>
+                <Button Content="export lrc" Style="{StaticResource Link}" Click="ExportLrc_Click"/>
+                <Button Content="設定" Style="{StaticResource Link}" Click="Settings_Click"
+                        ToolTip="顯示、overlay、字級、開機啟動"/>
             </WrapPanel>
 
             <!-- Footer -->
-            <StackPanel Grid.Row="5" Orientation="Horizontal" HorizontalAlignment="Center">
-                <TextBlock Text="made by Epi-1120" Foreground="#2a2a3a" FontSize="9.5"/>
-                <TextBlock Text="  ·  " Foreground="#222" FontSize="9.5"/>
-                <TextBlock x:Name="TxtVersion" Text="v0.9.0" Foreground="#3a4a5a" FontSize="9.5"/>
-                <TextBlock x:Name="TxtTime" Text="" Foreground="#333" FontSize="9.5" Margin="12,0,0,0"/>
-            </StackPanel>
+            <DockPanel Grid.Row="8" Margin="0,4,0,0">
+                <TextBlock x:Name="TxtVersion" DockPanel.Dock="Right" Text="" Foreground="#7b8394" FontSize="10"/>
+                <TextBlock Text="made by Epi-Lo" Foreground="#7b8394" FontSize="10"/>
+            </DockPanel>
         </Grid>
     </Border>
 </Window>
