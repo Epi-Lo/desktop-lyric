@@ -285,12 +285,40 @@ public class LyricsService
         catch { return []; }
     }
 
+    internal static string QqSearchBody(string title, string artist, int perPage)
+    {
+        var query = title + " " + artist;
+        return JsonSerializer.Serialize(new
+        {
+            comm = new { ct = 19, cv = 1845 },
+            req = new
+            {
+                method = "DoSearchForQQMusicDesktop",
+                module = "music.search.SearchCgiService",
+                param = new { num_per_page = perPage, page_num = 1, query = query, search_type = 0 }
+            }
+        });
+    }
+
+    internal static string QqLyricBody(string mid)
+    {
+        return JsonSerializer.Serialize(new
+        {
+            comm = new { ct = 19, cv = 1845 },
+            req = new
+            {
+                method = "GetPlayLyricInfo",
+                module = "music.musichallSong.PlayLyricInfo",
+                param = new { songMID = mid, songID = 0 }
+            }
+        });
+    }
+
     private async Task<List<LyricCandidate>> CandidatesQQ(string title, string artist)
     {
         try
         {
-            var query = (title + " " + artist).Replace("\"", "");
-            var body = "{\"comm\":{\"ct\":19,\"cv\":1845},\"req\":{\"method\":\"DoSearchForQQMusicDesktop\",\"module\":\"music.search.SearchCgiService\",\"param\":{\"num_per_page\":20,\"page_num\":1,\"query\":\"" + query + "\",\"search_type\":0}}}";
+            var body = QqSearchBody(title, artist, 20);
             using var sReq = new HttpRequestMessage(HttpMethod.Post, "https://u.y.qq.com/cgi-bin/musicu.fcg");
             sReq.Content = new StringContent(body, Encoding.UTF8, "application/json");
             sReq.Headers.Referrer = new Uri("https://y.qq.com");
@@ -448,7 +476,7 @@ public class LyricsService
     {
         try
         {
-            var lyricBody = "{\"comm\":{\"ct\":19,\"cv\":1845},\"req\":{\"method\":\"GetPlayLyricInfo\",\"module\":\"music.musichallSong.PlayLyricInfo\",\"param\":{\"songMID\":\"" + mid + "\",\"songID\":0}}}";
+            var lyricBody = QqLyricBody(mid);
             using var lReq = new HttpRequestMessage(HttpMethod.Post, "https://u.y.qq.com/cgi-bin/musicu.fcg");
             lReq.Content = new StringContent(lyricBody, Encoding.UTF8, "application/json");
             lReq.Headers.Referrer = new Uri("https://y.qq.com");
@@ -605,17 +633,7 @@ public class LyricsService
     {
         try
         {
-            var qqQuery = title + " " + artist;
-            var body = JsonSerializer.Serialize(new
-            {
-                comm = new { ct = 19, cv = 1845 },
-                req = new
-                {
-                    method = "DoSearchForQQMusicDesktop",
-                    module = "music.search.SearchCgiService",
-                    param = new { num_per_page = 8, page_num = 1, query = qqQuery, search_type = 0 }
-                }
-            });
+            var body = QqSearchBody(title, artist, 8);
             using var sReq = new HttpRequestMessage(HttpMethod.Post, "https://u.y.qq.com/cgi-bin/musicu.fcg");
             sReq.Content = new StringContent(body, Encoding.UTF8, "application/json");
             sReq.Headers.Referrer = new Uri("https://y.qq.com");
@@ -646,16 +664,7 @@ public class LyricsService
             }
             if (best < 10 || string.IsNullOrEmpty(mid)) return null;
 
-            var lyricBody = JsonSerializer.Serialize(new
-            {
-                comm = new { ct = 19, cv = 1845 },
-                req = new
-                {
-                    method = "GetPlayLyricInfo",
-                    module = "music.musichallSong.PlayLyricInfo",
-                    param = new { songMID = mid!, songID = 0 }
-                }
-            });
+            var lyricBody = QqLyricBody(mid!);
             using var lReq = new HttpRequestMessage(HttpMethod.Post, "https://u.y.qq.com/cgi-bin/musicu.fcg");
             lReq.Content = new StringContent(lyricBody, Encoding.UTF8, "application/json");
             lReq.Headers.Referrer = new Uri("https://y.qq.com");
