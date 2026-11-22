@@ -1,0 +1,34 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:sys="clr-namespace:System;assembly=mscorlib">
+    <!-- main window colours, same as 1.1.0 -->
+    <SolidColorBrush x:Key="WindowBg" Color="#0b0b12"/>
+    <SolidColorBrush x:Key="WindowBorder" Color="#1AFFFFFF"/>
+    <SolidColorBrush x:Key="Text" Color="#f0f0f5"/>
+    <SolidColorBrush x:Key="SubText" Color="#a9b2c2"/>
+    <SolidColorBrush x:Key="MetaText" Color="#8b93a3"/>
+    <SolidColorBrush x:Key="FooterText" Color="#7b8394"/>
+    <SolidColorBrush x:Key="Faint" Color="#59FFFFFF"/>
+    <SolidColorBrush x:Key="Romaji" Color="#5090c0"/>
+    <SolidColorBrush x:Key="TransText" Color="#a9b2c2"/>
+    <SolidColorBrush x:Key="Line" Color="#14FFFFFF"/>
+    <SolidColorBrush x:Key="Accent" Color="#00d4ff"/>
+    <SolidColorBrush x:Key="AccentFaint" Color="#8C00d4ff"/>
+    <SolidColorBrush x:Key="OffText" Color="#a0b0c0"/>
+    <SolidColorBrush x:Key="PillText" Color="#c9cfda"/>
+    <SolidColorBrush x:Key="PillBg" Color="Transparent"/>
+    <SolidColorBrush x:Key="PillBorder" Color="#29FFFFFF"/>
+    <SolidColorBrush x:Key="PillHover" Color="#0FFFFFFF"/>
+    <SolidColorBrush x:Key="PillPressed" Color="#1AFFFFFF"/>
+    <SolidColorBrush x:Key="LinkHover" Color="#FFFFFF"/>
+    <SolidColorBrush x:Key="WinButtonBg" Color="Transparent"/>
+    <SolidColorBrush x:Key="WinButtonHover" Color="#14FFFFFF"/>
+    <SolidColorBrush x:Key="StatusOn" Color="#00d4ff"/>
+    <SolidColorBrush x:Key="AlbumBg" Color="#15FFFFFF"/>
+    <SolidColorBrush x:Key="LyricsCardBg" Color="Transparent"/>
+    <SolidColorBrush x:Key="LyricsCardBorder" Color="Transparent"/>
+
+    <Visibility x:Key="ArtVisibility">Collapsed</Visibility>
+    <sys:Double x:Key="NowPlayingMaxWidth">10000</sys:Double>
+    <sys:Double x:Key="NowPlayingHeight">64</sys:Double>
+</ResourceDictionary>

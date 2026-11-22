@@ -161,13 +161,26 @@ public partial class MainWindow : Window
         tray.ExitRequested += () => QuitApp("tray");
     }
 
+    private void ApplyTheme()
+    {
+        var file = _settings.Theme == "suika" ? "Suika.xaml" : "Classic.xaml";
+        Resources.MergedDictionaries[0] = new ResourceDictionary
+        {
+            Source = new Uri("/Themes/" + file, UriKind.Relative),
+        };
+    }
+
     private void ApplySettings()
     {
+        ApplyTheme();
         FontFamily = LyricFonts.FromSettings(_settings.FontFamily);
         try
         {
+            var accent = _settings.AccentColor;
+            // cyan sung lyric on the cream card cannot read, 萃香 uses ink instead
+            if (_settings.Theme == "suika") accent = "#2b1d2a";
             var b = new System.Windows.Media.SolidColorBrush(
-                (System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(_settings.AccentColor));
+                (System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(accent));
             b.Freeze();
             TxtCurrent.AccentBrush = b;
             TxtCurrent.Foreground = b;
@@ -229,8 +242,7 @@ public partial class MainWindow : Window
         if (_session != null)
         {
             TxtStatus.Text = "connected";
-            StatusDot.Fill = new System.Windows.Media.SolidColorBrush(
-                System.Windows.Media.Color.FromRgb(0x00, 0xd4, 0xff));
+            StatusDot.SetResourceReference(System.Windows.Shapes.Shape.FillProperty, "StatusOn");
             PollNowPlaying();
             _pollTimer.Start();
             _syncTimer.Start();
@@ -1269,10 +1281,8 @@ public partial class MainWindow : Window
 
     private void ApplyTradButton()
     {
-        BtnTrad.Foreground = new System.Windows.Media.SolidColorBrush(
-            _settings.ForceTraditional
-                ? System.Windows.Media.Color.FromRgb(0x00, 0xd4, 0xff)
-                : System.Windows.Media.Color.FromRgb(0xa0, 0xb0, 0xc0));
+        // resource reference, so it follows when the theme changes
+        BtnTrad.SetResourceReference(ForegroundProperty, _settings.ForceTraditional ? "Accent" : "OffText");
     }
 
     private void OnLyricsLockToggled(bool locked)
@@ -1505,10 +1515,7 @@ public partial class MainWindow : Window
             || _lineTexts.Count > 0
             || _lineTrans.Count > 0
             || _addedLines.Count > 0;
-        BtnOffset.Foreground = new System.Windows.Media.SolidColorBrush(
-            custom
-                ? System.Windows.Media.Color.FromRgb(0x00, 0xd4, 0xff)
-                : System.Windows.Media.Color.FromRgb(0xa0, 0xb0, 0xc0));
+        BtnOffset.SetResourceReference(ForegroundProperty, custom ? "Accent" : "OffText");
         _overlay?.SetOffsetLabel(_trackOffsetMs, _trackRate, custom);
     }
 
@@ -1529,11 +1536,8 @@ public partial class MainWindow : Window
         var on = _overlay is { IsVisible: true };
         BtnOverlay.Content = on ? "overlay on" : "overlay off";
 
-        var cyan = System.Windows.Media.Color.FromRgb(0x00, 0xd4, 0xff);
-        var grey = System.Windows.Media.Color.FromRgb(0x8b, 0x93, 0xa3);
-        BtnOverlay.Foreground = new System.Windows.Media.SolidColorBrush(on ? cyan : grey);
-        BtnOverlay.BorderBrush = new System.Windows.Media.SolidColorBrush(
-            on ? cyan : System.Windows.Media.Color.FromArgb(0x29, 0xFF, 0xFF, 0xFF));
+        BtnOverlay.SetResourceReference(ForegroundProperty, on ? "Accent" : "MetaText");
+        BtnOverlay.SetResourceReference(BorderBrushProperty, on ? "Accent" : "PillBorder");
     }
 
     private void ExportLrc_Click(object sender, RoutedEventArgs e)

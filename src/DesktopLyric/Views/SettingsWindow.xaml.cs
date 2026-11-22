@@ -104,6 +104,7 @@ public partial class SettingsWindow : Window
         ChkStartup.IsChecked = StartupRegistration.IsEnabled();
 
         SelectFont(_settings.FontFamily);
+        CmbTheme.SelectedIndex = _settings.Theme == "suika" ? 1 : 0;
         SldOpacity.Value = Math.Clamp(_settings.OverlayOpacity, 40, 100);
         SldOriginal.Value = Math.Clamp(_settings.OverlayOriginalScale, LyricFonts.ScaleMin, LyricFonts.ScaleMax);
         SldTrans.Value = Math.Clamp(_settings.OverlayTranslationScale, LyricFonts.ScaleMin, LyricFonts.ScaleMax);
@@ -155,6 +156,15 @@ public partial class SettingsWindow : Window
         var i = CmbFont.SelectedIndex;
         if (i < 0 || i >= LyricFonts.ChineseChoices.Length) return;
         _settings.FontFamily = LyricFonts.ChineseChoices[i].Family;
+        _settings.Save();
+        Changed?.Invoke();
+    }
+
+    private void Theme_Changed(object sender, SelectionChangedEventArgs e)
+    {
+        if (!_ready) return;
+        if (CmbTheme.SelectedItem is not ComboBoxItem { Tag: string theme }) return;
+        _settings.Theme = theme;
         _settings.Save();
         Changed?.Invoke();
     }
