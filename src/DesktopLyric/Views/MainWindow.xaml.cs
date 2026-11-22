@@ -3,6 +3,7 @@ using System.IO;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 using Windows.Media.Control;
@@ -159,6 +160,24 @@ public partial class MainWindow : Window
         tray.ShowOverlayRequested += ShowOverlay;
         tray.SettingsRequested += OpenSettings;
         tray.ExitRequested += () => QuitApp("tray");
+    }
+
+    // how the next line comes in: from this many px lower, over this long
+    private const double LineSlideFrom = 14;
+    private const int LineSlideMs = 300;
+
+    // new line slides up abit like the list scrolled, before it just jumped.
+    // windows "animation effects" off = no moving, some people turn it off on purpose
+    private void PlayLineChange()
+    {
+        if (!SystemParameters.ClientAreaAnimation) return;
+
+        var ease = new QuadraticEase { EasingMode = EasingMode.EaseOut };
+        var time = TimeSpan.FromMilliseconds(LineSlideMs);
+        var slide = new DoubleAnimation(LineSlideFrom, 0, time) { EasingFunction = ease };
+        var fade = new DoubleAnimation(0.35, 1, time) { EasingFunction = ease };
+        LyricsShift.BeginAnimation(TranslateTransform.YProperty, slide);
+        LyricsStack.BeginAnimation(OpacityProperty, fade);
     }
 
     private void ApplyTheme()
@@ -865,6 +884,7 @@ public partial class MainWindow : Window
             var prev = prevIdx >= 0 ? ToDisplay(lines[prevIdx].Text) : "";
             var next = nextIdx >= 0 ? ToDisplay(lines[nextIdx].Text) : "";
             var words = KaraokeWordsForLine(lines, idx);
+            var paintedBefore = _paintIdx;
             _paintIdx = idx;
             _paintSig = sig;
             _paintText = text;
@@ -879,6 +899,11 @@ public partial class MainWindow : Window
             TxtPrev.Text = prev;
             TxtNext.Text = next;
             ApplyLineFonts(text, trans, prev, next);
+
+            // only a real move to another line. -2 = no lyrics, MinValue = repaint after settings,
+            // those should just show, not slide every time you touch a setting
+            if (paintedBefore != idx && paintedBefore >= -1)
+                PlayLineChange();
 
             SafeUpdateLyrics(text,
                 _settings.HideTranslation ? null : trans,
