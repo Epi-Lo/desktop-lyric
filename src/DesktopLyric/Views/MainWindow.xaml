@@ -216,7 +216,10 @@
                     <Grid.CacheMode>
                         <BitmapCache RenderAtScale="1.25" EnableClearType="False" SnapsToDevicePixels="False"/>
                     </Grid.CacheMode>
-                    <StackPanel VerticalAlignment="Center">
+                    <StackPanel x:Name="LyricsStack" VerticalAlignment="Center">
+                        <StackPanel.RenderTransform>
+                            <TranslateTransform x:Name="LyricsShift"/>
+                        </StackPanel.RenderTransform>
                         <TextBlock x:Name="TxtPrev" Text=""
                                    FontSize="12" Foreground="{DynamicResource Faint}"
                                    TextAlignment="Center" Margin="0,0,0,4"
