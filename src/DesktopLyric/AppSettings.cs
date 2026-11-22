@@ -20,6 +20,8 @@ public class AppSettings
     /// <summary>1.15 = Chinese translation a bit larger than the Japanese original.</summary>
     public double OverlayTranslationScale { get; set; } = 1.15;
     public bool FullscreenAlbumLayout { get; set; } = true;
+    /// <summary>Main window look: "classic" or "suika". Only these two for now.</summary>
+    public string Theme { get; set; } = "classic";
 
     private static readonly string SettingsPath = Path.Combine(
         Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
