@@ -25,7 +25,7 @@ It's a Touhou Project fan theme (伊吹萃香), not official. The picture in `As
 
 ## install
 
-Download `DesktopLyric-1.1.0-win-x64.zip` from [Releases](https://github.com/Epi-Lo/desktop-lyric/releases), unzip, and keep `DesktopLyric.exe` next to the `Fonts` folder. No install needed, Windows 10 / 11.
+Download `DesktopLyric-1.2.0-win-x64.zip` from [Releases](https://github.com/Epi-Lo/desktop-lyric/releases), unzip, and keep `DesktopLyric.exe` next to the `Fonts` folder. No install needed, Windows 10 / 11.
 
 Or build from source:
 
