@@ -29,6 +29,14 @@ public static class LyricChoiceStore
         @"\s*-\s*topic$", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
     private static readonly Regex QuotedJp = new(
         @"[「『]([^」』]{2,})[」』]", RegexOptions.CultureInvariant);
+    // "林俊傑 JJ Lin【記得 Remember】官方完整版 MV": artist first, song inside 【】.
+    // A 【】 right at the start is a tag or the artist, so the text before it can't be empty.
+    private static readonly Regex ArtistThenBracketSong = new(
+        @"^([^【]+?)\s*【([^】]{2,})】", RegexOptions.CultureInvariant);
+    // 【Official MV】, 【官方歌詞版】 etc. describe the video, not the song
+    private static readonly Regex VideoTagWords = new(
+        @"\b(official|mv|m/v|video|lyrics?|audio|live|hd|4k)\b|官方|歌詞|歌词|動態|完整版|中字|字幕|高畫質",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     internal static void ResetForTests(string storePath)
     {
@@ -168,6 +176,8 @@ public static class LyricChoiceStore
         if (string.IsNullOrEmpty(song))
             song = ExtractQuotedSong(title);
         if (string.IsNullOrEmpty(song))
+            song = ExtractBracketSong(title);
+        if (string.IsNullOrEmpty(song))
         {
             song = StripCampaign(Norm(title));
             song = LeadingTrackNo.Replace(song, "").Trim();
@@ -185,6 +195,26 @@ public static class LyricChoiceStore
         if (!m.Success) return null;
         var song = m.Groups[1].Value.Trim();
         return song.Length >= 2 ? song : null;
+    }
+
+    internal static string? ExtractBracketSong(string? title)
+    {
+        var m = MatchArtistThenBracketSong(title);
+        return m?.Groups[2].Value.Trim();
+    }
+
+    internal static string? ExtractBracketArtist(string? title)
+    {
+        var m = MatchArtistThenBracketSong(title);
+        return m?.Groups[1].Value.Trim();
+    }
+
+    private static Match? MatchArtistThenBracketSong(string? title)
+    {
+        var m = ArtistThenBracketSong.Match(title ?? "");
+        if (!m.Success) return null;
+        if (VideoTagWords.IsMatch(m.Groups[2].Value)) return null;
+        return m;
     }
 
     internal static bool LooksLikeTvOp(string? title)
@@ -215,6 +245,10 @@ public static class LyricChoiceStore
         var a = TopicSuffix.Replace((artist ?? "").Trim(), "").Trim();
         if (!string.IsNullOrEmpty(paren) && (string.IsNullOrWhiteSpace(a) || LooksLikeChannel(a)))
             return paren;
+        // labels like 太合音樂 upload many singers, the uploader typed the real one before 【song】
+        var bracket = ExtractBracketArtist(title);
+        if (!string.IsNullOrEmpty(bracket))
+            return bracket;
         return a;
     }
 

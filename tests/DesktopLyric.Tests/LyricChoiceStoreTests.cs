@@ -80,6 +80,28 @@ public class LyricChoiceStoreTests : IDisposable
         Assert.Equal("Kana Hanazawa", LyricChoiceStore.SearchArtist("雪に咲く花", "Kana Hanazawa - Topic"));
     }
 
+    const string JjLinMv = "林俊傑 JJ LIn【記得 Remember】官方完整版 MV（張惠妹原唱）";
+
+    [Fact]
+    public void song_in_brackets_after_the_artist_is_kept()
+    {
+        Assert.Equal("記得 Remember", LyricChoiceStore.SearchTitle(JjLinMv));
+    }
+
+    [Fact]
+    public void artist_before_the_brackets_beats_the_label_channel()
+    {
+        Assert.Equal("林俊傑 JJ LIn", LyricChoiceStore.SearchArtist(JjLinMv, "太合音樂 Taihe Music-精選"));
+    }
+
+    [Fact]
+    public void official_mv_in_brackets_is_not_a_song_name()
+    {
+        Assert.Equal("lemon", LyricChoiceStore.SearchTitle("Lemon【Official MV】"));
+        Assert.Equal("寄明月", LyricChoiceStore.SearchTitle("寄明月【官方歌詞版】"));
+        Assert.Equal("米津玄師", LyricChoiceStore.SearchArtist("Lemon【Official MV】", "米津玄師"));
+    }
+
     [Fact]
     public void extracts_song_from_youtube_anime_op_dump()
     {

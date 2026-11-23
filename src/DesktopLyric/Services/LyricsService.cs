@@ -990,16 +990,16 @@ public class LyricsService
         return false;
     }
 
-    private static long PickBest(JsonElement songs, string title, string artist, TimeSpan? trackDur = null)
+    internal static long PickBest(JsonElement songs, string title, string artist, TimeSpan? trackDur = null)
     {
         long bestId = -1; int bestScore = int.MinValue;
-        var tLow = title.ToLowerInvariant().Trim();
-        var aLow = artist.ToLowerInvariant().Trim();
+        var tLow = MatchText(title);
+        var aLow = MatchText(artist);
         var tCore = CoreTitle(tLow);
         var wantTv = LyricChoiceStore.LooksLikeTvSize(tLow) || LyricChoiceStore.LooksLikeTvOp(tLow);
         foreach (var song in songs.EnumerateArray())
         {
-            var name = (song.GetProperty("name").GetString() ?? "").ToLowerInvariant();
+            var name = MatchText(song.GetProperty("name").GetString());
             var nCore = CoreTitle(name);
             int sc = 0;
             if (nCore == tCore || name == tLow) sc += 100;
@@ -1009,7 +1009,7 @@ public class LyricsService
             if (TryNeteaseArtists(song, out var arts))
                 foreach (var a in arts.EnumerateArray())
                 {
-                    var an = (a.GetProperty("name").GetString() ?? "").ToLowerInvariant();
+                    var an = MatchText(a.GetProperty("name").GetString());
                     if (an == aLow || aLow.Contains(an) || an.Contains(aLow)) { sc += 30; break; }
                 }
             var ms = NeteaseDurationMs(song);
@@ -1024,6 +1024,11 @@ public class LyricsService
         }
         return bestScore >= 20 ? bestId : -1;
     }
+
+    // Netease names are simplified (记得 / 林俊杰) but YouTube titles are often
+    // traditional (記得 / 林俊傑), so compare both sides in traditional.
+    private static string MatchText(string? s)
+        => S2TConverter.Convert(s ?? "").ToLowerInvariant().Trim();
 
     private static string CoreTitle(string s)
     {
