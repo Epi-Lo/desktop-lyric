@@ -31,4 +31,26 @@
     <Visibility x:Key="ArtVisibility">Collapsed</Visibility>
     <sys:Double x:Key="NowPlayingMaxWidth">10000</sys:Double>
     <sys:Double x:Key="NowPlayingHeight">64</sys:Double>
+
+    <!-- overlay, same look as 1.2.0 -->
+    <SolidColorBrush x:Key="OverlayRim" Color="#55000000"/>
+    <SolidColorBrush x:Key="OverlayPlate" Color="#080810" Opacity="0.88"/>
+    <LinearGradientBrush x:Key="OverlayEdge" StartPoint="0,0" EndPoint="1,1">
+        <GradientStop Color="#2000d4ff" Offset="0"/>
+        <GradientStop Color="#08FFFFFF" Offset="0.5"/>
+        <GradientStop Color="#1500d4ff" Offset="1"/>
+    </LinearGradientBrush>
+    <Thickness x:Key="OverlayEdgeWidth">0.8</Thickness>
+    <SolidColorBrush x:Key="OverlayNote" Color="#4000d4ff"/>
+    <SolidColorBrush x:Key="OverlayTitle" Color="#80e0e8f4"/>
+    <SolidColorBrush x:Key="OverlayDot" Color="#25FFFFFF"/>
+    <SolidColorBrush x:Key="OverlayArtist" Color="#507090a0"/>
+    <SolidColorBrush x:Key="OverlayTrans" Color="#C8DDE8"/>
+    <SolidColorBrush x:Key="OverlayNext" Color="#70A0B0C0"/>
+    <SolidColorBrush x:Key="OverlayBar" Color="#10FFFFFF"/>
+    <SolidColorBrush x:Key="OverlayButton" Color="#90FFFFFF"/>
+    <SolidColorBrush x:Key="OverlayClose" Color="#60FFFFFF"/>
+    <SolidColorBrush x:Key="OverlayOn" Color="#00d4ff"/>
+    <SolidColorBrush x:Key="OverlayOff" Color="#909090"/>
+    <Thickness x:Key="OverlayLyricsMargin">16,4,16,4</Thickness>
 </ResourceDictionary>

@@ -14,6 +14,7 @@ public partial class OverlayWindow : Window
     private AppSettings _settings;
     private bool _applyingSize;
     private bool _closed;
+    private bool _offsetCustom;
     private HoldRepeat? _offsetHold;
     private DispatcherTimer? _hitTimer;
 
@@ -31,6 +32,7 @@ public partial class OverlayWindow : Window
         InitializeComponent();
         ShowActivated = false;
         _settings = settings;
+        ApplyTheme();
         ApplyAccentColor();
         ApplyTradButton();
         ApplyTopmost();
@@ -90,11 +92,26 @@ public partial class OverlayWindow : Window
         OvTrackArtist.FontFamily = FontFamily;
     }
 
+    private void ApplyTheme()
+    {
+        var file = _settings.Theme == "suika" ? "Suika.xaml" : "Classic.xaml";
+        Resources.MergedDictionaries[0] = new ResourceDictionary
+        {
+            Source = new Uri("/Themes/" + file, UriKind.Relative),
+        };
+    }
+
+    // on / off colour of the toggle buttons comes from the theme, cyan + grey in classic
+    private Brush OnOff(bool on) => (Brush)FindResource(on ? "OverlayOn" : "OverlayOff");
+
     private void ApplyAccentColor()
     {
         try
         {
-            var c = (Color)ColorConverter.ConvertFromString(_settings.AccentColor);
+            var accent = _settings.AccentColor;
+            // cyan cannot read on the cream paper, 萃香 sings in red (from her bow) instead
+            if (_settings.Theme == "suika") accent = "#b8372c";
+            var c = (Color)ColorConverter.ConvertFromString(accent);
             var b = new SolidColorBrush(c);
             b.Freeze();
             OvCurrent.AccentBrush = b;
@@ -116,10 +133,8 @@ public partial class OverlayWindow : Window
     {
         if (!WindowGuard.CanTouch(this)) return;
         BtnOffset.Content = LyricOffsetStore.FormatLabel(ms, rate);
-        var isCustom = custom ?? (ms != 0 || Math.Abs(rate - 1.0) >= 0.0005);
-        BtnOffset.Foreground = isCustom
-            ? new SolidColorBrush(Color.FromRgb(0x00, 0xd4, 0xff))
-            : new SolidColorBrush(Color.FromRgb(0x90, 0x90, 0x90));
+        _offsetCustom = custom ?? (ms != 0 || Math.Abs(rate - 1.0) >= 0.0005);
+        BtnOffset.Foreground = OnOff(_offsetCustom);
     }
 
     public void RefreshFonts()
@@ -135,27 +150,27 @@ public partial class OverlayWindow : Window
     public void RefreshAppearance()
     {
         if (!WindowGuard.CanTouch(this) || _closed) return;
+        ApplyTheme();
         ApplyAccentColor();
         ApplyTradButton();
         ApplyTopmost();
+        // these two keep the colour from before the theme swap otherwise
+        ApplyLock();
+        BtnOffset.Foreground = OnOff(_offsetCustom);
         ApplyFont();
-        Opacity = Math.Clamp(_settings.OverlayOpacity / 100.0, 0.35, 1);
+        Opacity =Math.Clamp(_settings.OverlayOpacity / 100.0, 0.35, 1);
         RefreshFonts();
     }
 
     private void ApplyTradButton()
     {
-        BtnTrad.Foreground = _settings.ForceTraditional
-            ? new SolidColorBrush(Color.FromRgb(0x00, 0xd4, 0xff))
-            : new SolidColorBrush(Color.FromRgb(0x90, 0x90, 0x90));
+        BtnTrad.Foreground = OnOff(_settings.ForceTraditional);
     }
 
     private void ApplyTopmost()
     {
         Topmost = _settings.OverlayTopmost;
-        BtnTopmost.Foreground = _settings.OverlayTopmost
-            ? new SolidColorBrush(Color.FromRgb(0x00, 0xd4, 0xff))
-            : new SolidColorBrush(Color.FromRgb(0x90, 0x90, 0x90));
+        BtnTopmost.Foreground = OnOff(_settings.OverlayTopmost);
     }
 
     public void UpdateLyrics(string current, string? translated, string? next = null,
@@ -334,9 +349,7 @@ public partial class OverlayWindow : Window
     private void ApplyLock()
     {
         if (BtnLock == null) return;
-        BtnLock.Foreground = LyricsLocked
-            ? new SolidColorBrush(Color.FromRgb(0x00, 0xd4, 0xff))
-            : new SolidColorBrush(Color.FromRgb(0x90, 0x90, 0x90));
+        BtnLock.Foreground = OnOff(LyricsLocked);
         BtnLock.ToolTip = LyricsLocked
             ? "已鎖定歌詞。再撳解除，跟返播放器。"
             : "鎖定而家呢首歌詞。播放器換歌／YouTube 預覽都唔會改。再撳解除。";
