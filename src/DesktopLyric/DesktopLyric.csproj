@@ -27,6 +27,7 @@
   <ItemGroup>
     <Resource Include="Assets\app.ico" />
     <Resource Include="Assets\suika.png" />
+    <Resource Include="Assets\suika-overlay.png" />
   </ItemGroup>
 
   <ItemGroup>

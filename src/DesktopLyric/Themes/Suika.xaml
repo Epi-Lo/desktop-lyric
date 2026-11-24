@@ -34,4 +34,25 @@
     <!-- song text stays left of the picture -->
     <sys:Double x:Key="NowPlayingMaxWidth">230</sys:Double>
     <sys:Double x:Key="NowPlayingHeight">150</sys:Double>
+
+    <!-- overlay: cream paper picture with 萃香 sitting on the right.
+         lyrics get a big right margin so they never sit on top of her -->
+    <SolidColorBrush x:Key="OverlayRim" Color="#1F000000"/>
+    <ImageBrush x:Key="OverlayPlate" ImageSource="/Assets/suika-overlay.png"
+                Stretch="UniformToFill" AlignmentX="Right" AlignmentY="Center"/>
+    <SolidColorBrush x:Key="OverlayEdge" Color="#3D2b1d2a"/>
+    <Thickness x:Key="OverlayEdgeWidth">1.5</Thickness>
+    <SolidColorBrush x:Key="OverlayNote" Color="#b8372c"/>
+    <SolidColorBrush x:Key="OverlayTitle" Color="#2b1d2a"/>
+    <SolidColorBrush x:Key="OverlayDot" Color="#802b1d2a"/>
+    <SolidColorBrush x:Key="OverlayArtist" Color="#4e3d52"/>
+    <SolidColorBrush x:Key="OverlayTrans" Color="#5a3d8a"/>
+    <SolidColorBrush x:Key="OverlayNext" Color="#6b5c6a"/>
+    <!-- buttons sit on the grass part of the picture, need paper behind -->
+    <SolidColorBrush x:Key="OverlayBar" Color="#E6f3eadf"/>
+    <SolidColorBrush x:Key="OverlayButton" Color="#2b1d2a"/>
+    <SolidColorBrush x:Key="OverlayClose" Color="#4e3d52"/>
+    <SolidColorBrush x:Key="OverlayOn" Color="#b8372c"/>
+    <SolidColorBrush x:Key="OverlayOff" Color="#6b5c6a"/>
+    <Thickness x:Key="OverlayLyricsMargin">16,4,150,4</Thickness>
 </ResourceDictionary>

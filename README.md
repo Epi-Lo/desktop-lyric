@@ -17,11 +17,11 @@ Windows 桌面歌詞，跟住你而家播緊嘅歌出同步歌詞同中文譯文
 - Timing editor for live versions: offset, speed, per line shift, LRC import / export
 - Karaoke word-by-word highlight (Netease YRC)
 - Romaji for Japanese lyrics, fullscreen mode (F11)
-- Two looks for the main window, pick in 設定 > 外觀: 經典 (the dark one) or 萃香
+- Two looks, pick in 設定 > 外觀: 經典 (the dark one) or 萃香. The overlay follows the same pick
 
 ## about the 萃香 look
 
-It's a Touhou Project fan theme (伊吹萃香), not official. The picture in `Assets/suika.png` is AI generated (gpt-image), then cleaned with [gpt-anime-denoise](https://github.com/CXP-2024/gpt-anime-denoise) to take away the GPT texture. Not someone else's fan art, so ok to ship with the app.
+It's a Touhou Project fan theme (伊吹萃香), not official. Both pictures, `Assets/suika.png` (main window) and `Assets/suika-overlay.png` (overlay background), are AI generated (gpt-image), then cleaned with [gpt-anime-denoise](https://github.com/CXP-2024/gpt-anime-denoise) to take away the GPT texture. Not someone else's fan art, so ok to ship with the app.
 
 ## install
 
