@@ -2,7 +2,11 @@
 
 Desktop lyrics overlay for Windows. Shows synced lyrics with Chinese translation for whatever's playing in Tidal, Spotify, YouTube in the browser, or any player that shows up in Windows media controls (SMTC).
 
-Windows 桌面歌詞，跟住你而家播緊嘅歌出同步歌詞同中文譯文，預設繁體（香港用字）。
+Windows 桌面歌詞 / 歌詞浮窗。聽 Spotify、Tidal，或者用 Chrome / Edge 睇 YouTube MV 嘅時候，桌面會自動浮出同步歌詞同中文翻譯，用返你本身嘅播放器就得。日文歌可以顯示羅馬拼音，有逐字資料嘅歌仲會好似卡拉 OK 咁一個字一個字亮。預設繁體（香港用字），撳 繁 就轉返原文。
+
+![classic look: main window and the lyrics overlay](docs/screenshot-classic.png)
+
+![萃香 look (the overlay part comes in 1.3.0)](docs/screenshot-suika.png)
 
 ## what it does
 
