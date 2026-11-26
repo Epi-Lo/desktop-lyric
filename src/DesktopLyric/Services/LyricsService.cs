@@ -362,7 +362,7 @@ public class LyricsService
         {
             var kw = Uri.EscapeDataString(title + " " + artist);
             using var sResp = await _http.GetAsync(
-                "http://mobilecdn.kugou.com/api/v3/search/song?format=json&keyword=" + kw + "&page=1&pagesize=20");
+                "https://mobiles.kugou.com/api/v3/search/song?format=json&keyword=" + kw + "&page=1&pagesize=20");
             if (!sResp.IsSuccessStatusCode) return [];
             using var sDoc = JsonDocument.Parse(await sResp.Content.ReadAsStringAsync());
             var info = sDoc.RootElement.GetProperty("data").GetProperty("info");
@@ -697,7 +697,7 @@ public class LyricsService
         {
             var kw = Uri.EscapeDataString(title + " " + artist);
             using var sResp = await _http.GetAsync(
-                "http://mobilecdn.kugou.com/api/v3/search/song?format=json&keyword=" + kw + "&page=1&pagesize=8");
+                "https://mobiles.kugou.com/api/v3/search/song?format=json&keyword=" + kw + "&page=1&pagesize=8");
             if (!sResp.IsSuccessStatusCode) return null;
 
             using var sDoc = JsonDocument.Parse(await sResp.Content.ReadAsStringAsync());
