@@ -38,6 +38,7 @@ public partial class OverlayWindow : Window
         ApplyTopmost();
         ApplyLock();
         ApplyFont();
+        ApplyPlateOpacity();
         _offsetHold = new HoldRepeat(delta => OffsetNudged?.Invoke(delta));
     }
 
@@ -158,8 +159,17 @@ public partial class OverlayWindow : Window
         ApplyLock();
         BtnOffset.Foreground = OnOff(_offsetCustom);
         ApplyFont();
-        Opacity =Math.Clamp(_settings.OverlayOpacity / 100.0, 0.35, 1);
+        ApplyPlateOpacity();
         RefreshFonts();
+    }
+
+    // only the plate go see-through, lyrics stay solid. before this the whole window fade,
+    // suika picture + words mix together and look muddy below 100%
+    private void ApplyPlateOpacity()
+    {
+        var plate = Math.Clamp(_settings.OverlayOpacity / 100.0, 0.35, 1);
+        RimBorder.Opacity = plate;
+        BgBorder.Opacity = plate;
     }
 
     private void ApplyTradButton()

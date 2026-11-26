@@ -1326,7 +1326,6 @@ public partial class MainWindow : Window
             return;
         }
         _overlay = new OverlayWindow(_settings);
-        _overlay.Opacity = _settings.OverlayOpacity / 100.0;
         _overlay.SetTrackInfo(ToDisplay(_lastTitle), ToDisplay(TxtArtist.Text));
         _overlay.TraditionalToggled += ApplyTradButton;
         _overlay.OffsetNudged += NudgeOffset;
