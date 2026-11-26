@@ -27,6 +27,11 @@ public class LyricLineView : FrameworkElement
         nameof(AccentBrush), typeof(Brush), typeof(LyricLineView),
         new FrameworkPropertyMetadata(new SolidColorBrush(Color.FromRgb(0x00, 0xd4, 0xff)), FrameworkPropertyMetadataOptions.AffectsRender));
 
+    // karaoke word not sung yet. theme set it, classic white on the dark plate, suika grey on the paper
+    public static readonly DependencyProperty UnsungBrushProperty = DependencyProperty.Register(
+        nameof(UnsungBrush), typeof(Brush), typeof(LyricLineView),
+        new FrameworkPropertyMetadata(CreateUnsung(), FrameworkPropertyMetadataOptions.AffectsRender));
+
     public static readonly DependencyProperty SettingsFontProperty = DependencyProperty.Register(
         nameof(SettingsFont), typeof(string), typeof(LyricLineView),
         new FrameworkPropertyMetadata("", FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender, OnLayoutInvalidated));
@@ -58,6 +63,12 @@ public class LyricLineView : FrameworkElement
     {
         get => (string)GetValue(TextProperty);
         set => SetValue(TextProperty, value);
+    }
+
+    public Brush UnsungBrush
+    {
+        get => (Brush)GetValue(UnsungBrushProperty);
+        set => SetValue(UnsungBrushProperty, value);
     }
 
     public double FontSize
@@ -288,20 +299,18 @@ public class LyricLineView : FrameworkElement
     {
         var endMs = startMs + durMs;
         if (elapsed >= endMs) return AccentColorBrush();
-        if (elapsed <= startMs || durMs <= 0) return UnsungBrush();
+        if (elapsed <= startMs || durMs <= 0) return UnsungBrush;
         var pct = Math.Clamp((elapsed - startMs) / durMs, 0, 1);
         var ac = AccentColor();
-        if (_ramp == null || _rampAccent != ac)
+        var uc = UnsungColor();
+        if (_ramp == null || _rampAccent != ac || _rampUnsung != uc)
         {
             _rampAccent = ac;
+            _rampUnsung = uc;
             _ramp = new Brush[8];
             for (int i = 0; i < 8; i++)
             {
-                var t = (i + 1) / 8.0;
-                var br = new SolidColorBrush(Color.FromRgb(
-                    (byte)(0x58 + (ac.R - 0x58) * t),
-                    (byte)(0x68 + (ac.G - 0x68) * t),
-                    (byte)(0x78 + (ac.B - 0x78) * t)));
+                var br = new SolidColorBrush(RampColor(uc, ac, (i + 1) / 8.0));
                 br.Freeze();
                 _ramp[i] = br;
             }
@@ -309,7 +318,14 @@ public class LyricLineView : FrameworkElement
         return _ramp[Math.Clamp((int)(pct * 8), 0, 7)];
     }
 
+    // word being sung fade from the unsung colour to the accent, t 0..1
+    public static Color RampColor(Color from, Color to, double t) => Color.FromRgb(
+        (byte)(from.R + (to.R - from.R) * t),
+        (byte)(from.G + (to.G - from.G) * t),
+        (byte)(from.B + (to.B - from.B) * t));
+
     private Color _rampAccent;
+    private Color _rampUnsung;
     private Brush[]? _ramp;
 
     private static readonly SolidColorBrush UnsungFrozen = CreateUnsung();
@@ -319,7 +335,9 @@ public class LyricLineView : FrameworkElement
         b.Freeze();
         return b;
     }
-    private static Brush UnsungBrush() => UnsungFrozen;
+
+    private Color UnsungColor()
+        => UnsungBrush is SolidColorBrush sb ? sb.Color : UnsungFrozen.Color;
 
     private Color AccentColor()
         => AccentBrush is SolidColorBrush sb ? sb.Color : Color.FromRgb(0x00, 0xd4, 0xff);

@@ -46,6 +46,7 @@
     <SolidColorBrush x:Key="OverlayTitle" Color="#2b1d2a"/>
     <SolidColorBrush x:Key="OverlayDot" Color="#802b1d2a"/>
     <SolidColorBrush x:Key="OverlayArtist" Color="#4e3d52"/>
+    <SolidColorBrush x:Key="OverlayUnsung" Color="#8c7f8a"/>
     <SolidColorBrush x:Key="OverlayTrans" Color="#5a3d8a"/>
     <SolidColorBrush x:Key="OverlayNext" Color="#6b5c6a"/>
     <!-- buttons sit on the grass part of the picture, need paper behind -->

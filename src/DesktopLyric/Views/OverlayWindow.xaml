@@ -72,6 +72,7 @@
                     <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
                 <local:LyricLineView Grid.Row="0" x:Name="OvCurrent" FontSize="24" IsCurrent="True"
+                                     UnsungBrush="{DynamicResource OverlayUnsung}"
                                      ClipToBounds="True" Margin="0,0,0,4"/>
                 <local:LyricLineView Grid.Row="1" x:Name="OvTrans" FontSize="16"
                                      ClipToBounds="True"

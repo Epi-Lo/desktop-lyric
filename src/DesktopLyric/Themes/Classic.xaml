@@ -45,6 +45,7 @@
     <SolidColorBrush x:Key="OverlayTitle" Color="#80e0e8f4"/>
     <SolidColorBrush x:Key="OverlayDot" Color="#25FFFFFF"/>
     <SolidColorBrush x:Key="OverlayArtist" Color="#507090a0"/>
+    <SolidColorBrush x:Key="OverlayUnsung" Color="#F0F4F8"/>
     <SolidColorBrush x:Key="OverlayTrans" Color="#C8DDE8"/>
     <SolidColorBrush x:Key="OverlayNext" Color="#70A0B0C0"/>
     <SolidColorBrush x:Key="OverlayBar" Color="#10FFFFFF"/>
