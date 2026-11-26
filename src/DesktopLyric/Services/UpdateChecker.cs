@@ -7,7 +7,7 @@ namespace DesktopLyric.Services;
 public static class UpdateChecker
 {
     private static readonly HttpClient _http = new() { Timeout = TimeSpan.FromSeconds(8) };
-    public const string CurrentVersion = "1.3.0"; // bump this when releasing
+    public const string CurrentVersion = "1.4.0"; // bump this when releasing
     private const string Repo = "Epi-Lo/desktop-lyric";
 
     public record UpdateInfo(string Version, string Url, string Notes);

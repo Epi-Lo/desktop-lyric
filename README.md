@@ -21,7 +21,7 @@ Desktop lyrics overlay for Windows. Shows synced lyrics with Chinese translation
 ### Overlay
 
 - Floats on top, drag it anywhere. Clicks go through it when the mouse is not on the lyrics, so it doesn't block games
-- Transparency from 40 to 100% in 設定, turn it down abit when gaming
+- Transparency from 40 to 100% in 設定, only the background goes see-through, the lyrics stay solid. Turn it down abit when gaming
 - 鎖 locks the current lyrics, so YouTube hover previews or mix titles don't swap the song
 - Fullscreen mode (F11)
 
@@ -39,7 +39,7 @@ Two looks, pick in 設定 > 外觀: 經典 (the dark one) or 萃香. The overlay
 
 ## Install
 
-Download `DesktopLyric-1.3.0-win-x64.zip` from [Releases](https://github.com/Epi-Lo/desktop-lyric/releases), unzip, and keep `DesktopLyric.exe` next to the `Fonts` folder. No install needed.
+Download `DesktopLyric-1.4.0-win-x64.zip` from [Releases](https://github.com/Epi-Lo/desktop-lyric/releases), unzip, and keep `DesktopLyric.exe` next to the `Fonts` folder. No install needed.
 
 Or build from source:
 
